@@ -2,6 +2,7 @@
 
 A tiny Cockpit-style system monitor for **web servers** specifically: a single Go binary that serves a live
 web view of the machine it runs on — host facts and the running process list — pushed to the browser over server-sent events.
+Configured to watch for Quadlet Unit files because I use podman with `.container`s.
 
 [chi]: https://github.com/go-chi/chi
 [Datastar]: https://data-star.dev

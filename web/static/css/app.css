@@ -332,6 +332,92 @@ img.svg {
     background: oklch(from var(--secondary) l c h / 0.3);
 }
 
+#shortcuts-toggle {
+    border: 1px solid oklch(from var(--secondary) l c h / 0.6);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text);
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+#shortcuts-toggle:hover {
+    background: oklch(from var(--secondary) l c h / 0.3);
+}
+
+/* Keyboard shortcuts dialog */
+#shortcuts-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    align-items: center;
+    justify-content: center;
+    background: oklch(0% 0 0 / 0.5);
+}
+
+#shortcuts-overlay.open {
+    display: flex;
+}
+
+#shortcuts-dialog {
+    background: var(--background);
+    border: 1px solid oklch(from var(--secondary) l c h / 0.6);
+    border-radius: 8px;
+    padding: 1.5rem;
+    width: 90%;
+    max-width: 360px;
+    box-shadow: 0 10px 30px oklch(0% 0 0 / 0.3);
+}
+
+#shortcuts-dialog h3 {
+    margin: 0;
+}
+
+#shortcuts-dialog button {
+    border: none;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.shortcuts-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.shortcuts-table td {
+    padding: 0.4rem 0;
+    border-bottom: 1px solid oklch(from var(--secondary) l c h / 0.25);
+}
+
+.shortcuts-table tr:last-child td {
+    border-bottom: none;
+}
+
+.shortcuts-table td:first-child {
+    width: 3.5rem;
+}
+
+.shortcuts-table kbd {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid oklch(from var(--secondary) l c h / 0.6);
+    border-radius: 4px;
+    background: var(--surface);
+    font-family: inherit;
+    font-size: 0.85rem;
+}
+
+.shortcuts-note {
+    margin: 0.75rem 0 0 0;
+    font-size: 0.8rem;
+}
+
 /* ------ */
 /* Mobile */
 /* ------ */

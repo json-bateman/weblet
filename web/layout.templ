@@ -7,14 +7,64 @@ templ BrandLogo(osName string) {
 		case strings.Contains(strings.ToLower(osName), "darwin") || strings.Contains(strings.ToLower(osName), "mac"):
 			<div class="flex items-center gap-4">
 				<img class="svg" src={ StaticPath("icons/apple.svg") } alt="macOS" width="48" height="48"/>
-				<span class="brand-stream">macOS</span>
+			</div>
+		case strings.Contains(strings.ToLower(osName), "centos"):
+			<div class="flex items-center gap-4">
+				<img src={ StaticPath("images/centos-stream.png") } alt="CentOS Stream" width="163" height="48"/>
+			</div>
+		case strings.Contains(strings.ToLower(osName), "nixos"):
+			<div class="flex items-center gap-4">
+				<img src={ StaticPath("images/os/nixos.png") } alt="NixOS" width="48" height="48"/>
 			</div>
 		default:
 			<div class="flex items-center gap-4">
-				<img src={ StaticPath("images/centos-stream.png") } alt="CentOS Stream" width="163" height="48"/>
-				<span class="brand-stream">Stream</span>
+				<img src={ StaticPath("images/linux.png") } alt="linux" width="163" height="48"/>
 			</div>
 	}
+}
+
+templ ShortcutsDialog() {
+	<div id="shortcuts-overlay" data-class="{open: $shortcutsOpen}">
+		<div
+			id="shortcuts-dialog"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="shortcuts-title"
+			data-on:click__outside="!evt.target.closest('#shortcuts-toggle') && ($shortcutsOpen = false)"
+			data-on:keydown__window="evt.key === 'Escape' && ($shortcutsOpen = false)"
+		>
+			<div class="flex items-center justify-between mb-4">
+				<h3 id="shortcuts-title">Keyboard Shortcuts</h3>
+				<button
+					type="button"
+					class="cursor-pointer"
+					aria-label="Close"
+					data-on:click="$shortcutsOpen = false"
+				>✕</button>
+			</div>
+			<table class="shortcuts-table">
+				<tbody>
+					<tr>
+						<td><kbd>t</kbd></td>
+						<td>Toggle light / dark theme</td>
+					</tr>
+					<tr>
+						<td><kbd>s</kbd></td>
+						<td>Toggle the sidebar</td>
+					</tr>
+					<tr>
+						<td><kbd>?</kbd></td>
+						<td>Open / close this dialog</td>
+					</tr>
+					<tr>
+						<td><kbd>Esc</kbd></td>
+						<td>Close this dialog</td>
+					</tr>
+				</tbody>
+			</table>
+			<p class="color-muted shortcuts-note">Shortcuts are ignored while typing in a field.</p>
+		</div>
+	</div>
 }
 
 templ Layout(title, commitHash string) {
@@ -30,7 +80,7 @@ templ Layout(title, commitHash string) {
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>{ title }</title>
-			<link rel="icon" type="image/png" href={ StaticPath("images/centos-favicon.png") }/>
+			<link rel="icon" type="image/png" href={ StaticPath("images/favicon.png") }/>
 			<!-- Need this IIFE to  run before CSS loads, prevents theme flash since D* is deferred with type="module" -->
 			<script>
                     (function() {
@@ -47,7 +97,7 @@ templ Layout(title, commitHash string) {
 			<link href={ StaticPath("css/main.css") } rel="stylesheet"/>
 		</head>
 		<datastar-inspector></datastar-inspector>
-		<body data-signals="{sidebarOpen: false}">
+		<body data-signals="{sidebarOpen: false, shortcutsOpen: false}">
 			<div id="app-shell">
 				<aside
 					id="sidebar"
@@ -65,7 +115,10 @@ templ Layout(title, commitHash string) {
 					<div id="sidebar-footer">{ commitHash }</div>
 				</aside>
 				<div id="app-shell-main">
-					<header id="masthead">
+					<header
+						id="masthead"
+						data-on:keydown__window="hotkey(evt, '?') && ($shortcutsOpen = !$shortcutsOpen)"
+					>
 						<div class="flex gap-4">
 							<button
 								id="sidebar-toggle"
@@ -76,19 +129,30 @@ templ Layout(title, commitHash string) {
 							>☰</button>
 							@BrandLogo(osPrettyName())
 						</div>
-						<fieldset class="cs-buttongroup" role="radiogroup" aria-label="Color mode">
-							<label>
-								<input type="radio" value="light" data-bind:theme/>
-								<iconify-icon icon="material-symbols-light:sunny-rounded"></iconify-icon>
-								Light
-							</label>
-							<label>
-								<input type="radio" value="dark" data-bind:theme/>
-								<iconify-icon icon="material-symbols-light:moon-stars"></iconify-icon>
-								Dark
-							</label>
-						</fieldset>
+						<div class="flex items-center gap-4">
+							<fieldset class="cs-buttongroup" role="radiogroup" aria-label="Color mode">
+								<label>
+									<input type="radio" value="light" data-bind:theme/>
+									<iconify-icon icon="material-symbols-light:sunny-rounded"></iconify-icon>
+									Light
+								</label>
+								<label>
+									<input type="radio" value="dark" data-bind:theme/>
+									<iconify-icon icon="material-symbols-light:moon-stars"></iconify-icon>
+									Dark
+								</label>
+							</fieldset>
+							<button
+								id="shortcuts-toggle"
+								type="button"
+								class="cursor-pointer"
+								aria-label="Keyboard shortcuts"
+								aria-haspopup="dialog"
+								data-on:click="$shortcutsOpen = true"
+							>?</button>
+						</div>
 					</header>
+					@ShortcutsDialog()
 					<div class="page-shell">
 						{ children... }
 					</div>

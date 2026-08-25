@@ -9,8 +9,12 @@ templ osLogo(osName string) {
 	switch  {
 		case strings.Contains(strings.ToLower(osName), "centos"):
 			<img src={ StaticPath("images/os/centos.png") } alt="CentOS" width="24" height="24"/>
+		case strings.Contains(strings.ToLower(osName), "nixos"):
+			<img src={ StaticPath("images/os/nixos.png") } alt="NixOS" width="24" height="24"/>
 		case strings.Contains(strings.ToLower(osName), "darwin") || strings.Contains(strings.ToLower(osName), "mac"):
 			<img class="svg" src={ StaticPath("icons/apple.svg") } alt="macOS" width="24" height="24"/>
+		default:
+			<img class="svg" src={ StaticPath("icons/linux.png") } alt="macOS" width="24" height="24"/>
 	}
 }
 
