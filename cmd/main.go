@@ -1,4 +1,4 @@
-// Command centos-streamed is a tiny Cockpit-style system monitor: a single Go
+// Command webadelphos is a tiny Cockpit-style system monitor: a single Go
 // binary that serves a live web view of the machine it runs on — host facts and
 // the running process list — pushed to the browser over server-sent events.
 package main
@@ -12,8 +12,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	streamed "github.com/json-bateman/centos-streamed"
-	"github.com/json-bateman/centos-streamed/web"
+	"github.com/json-bateman/webadelphos"
+	"github.com/json-bateman/webadelphos/web"
 )
 
 func main() {
@@ -31,7 +31,7 @@ func main() {
 }
 
 func run(ctx context.Context) error {
-	streamed.LoadSettings()
+	webadelphos.LoadSettings()
 
 	if err := web.RunBlocking(ctx); err != nil {
 		return fmt.Errorf("run web server: %w", err)

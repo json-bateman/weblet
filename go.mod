@@ -1,4 +1,4 @@
-module github.com/json-bateman/centos-streamed
+module github.com/json-bateman/webadelphos
 
 go 1.26.0
 

@@ -1,4 +1,4 @@
-# centos-streamed
+# webadelphos
 
 A tiny Cockpit-style **system monitor**: a single Go binary that serves a live
 web view of the machine it runs on — host facts and the running process list —
@@ -43,24 +43,24 @@ task go:build        # -> ./release/web
 go run ./cmd
 ```
 
-Then open **http://localhost:44223**. Config is `STREAMED_`-prefixed (see
+Then open **http://localhost:44223**. Config is `WEBADELPHOS_`-prefixed (see
 `env.go`); override via `.env`.
 
 ## Development on macOS (Lima VM)
 
 `/proc` only exists on Linux, so run inside the `centos10` VM. The repo is
-mounted at `/home/lima/centos10/centos-streamed` and guest port 44223 is
+mounted at `/home/lima/centos10/webadelphos` and guest port 44223 is
 forwarded to the host:
 
 ```bash
-limactl shell centos10 sh -c 'cd /home/lima/centos10/centos-streamed && go run ./cmd'
+limactl shell centos10 sh -c 'cd /home/lima/centos10/webadelphos && go run ./cmd'
 ```
 
 Then open **http://localhost:44223** on the Mac.
 
 ## Viewing a remote server from your Mac
 
-If `centos-streamed` is running on a server you SSH into, forward the port
+If `webadelphos` is running on a server you SSH into, forward the port
 over SSH instead of exposing it to the network:
 
 ```bash

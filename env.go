@@ -1,6 +1,6 @@
-// Package streamed holds process-wide configuration for the centos-streamed
+// Package webadelphos holds process-wide configuration for the webadelphos
 // system monitor.
-package streamed
+package webadelphos
 
 import (
 	"log/slog"
@@ -23,7 +23,7 @@ func LoadSettings() *Config {
 		slog.Warn(".env file not found, using system environment variables instead")
 	}
 
-	if err := envconfig.Process("streamed", &Env); err != nil {
+	if err := envconfig.Process("webadelphos", &Env); err != nil {
 		slog.Error("Failed to load environment configuration", "error", err)
 		os.Exit(1)
 	}
