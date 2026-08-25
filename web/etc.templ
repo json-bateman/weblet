@@ -1,0 +1,46 @@
+package web
+
+import "fmt"
+
+templ EtcPage(caddyConfig string, files []struct{ Name, Content string }) {
+	@Layout("/etc", CommitHash) {
+		<main data-init={ fmt.Sprintf("@get('%s/sse')", EtcUrl) }>
+			<h3 class="mb-4">Caddy and Quadlet Config</h3>
+			@CaddyConfig(caddyConfig)
+			<br/>
+			@FileList(files)
+		</main>
+	}
+}
+
+templ CaddyConfig(caddyConfig string) {
+	<section>
+		<h4 class="color-muted">Caddy Configuration (/etc/caddy/Caddyfile)</h4>
+		<details data-ignore-morph class="tree-file">
+			<summary>
+				<div class="caddy-img">
+					<img src={ StaticPath("images/Caddy.svg") }/>
+				</div>
+			</summary>
+			<pre>{ caddyConfig }</pre>
+		</details>
+	</section>
+}
+
+templ FileList(files []struct{ Name, Content string }) {
+	<section>
+		<h4 class="color-muted">Quadlet Unit Files (/etc/containers/systemd/)</h4>
+		if len(files) == 0 {
+			<p class="color-muted">No files found</p>
+		} else {
+			<div class="config-list">
+				for _, container := range files {
+					<details data-ignore-morph class="tree-file">
+						<summary>📄 { container.Name }</summary>
+						<pre>{ container.Content }</pre>
+					</details>
+				}
+			</div>
+		}
+	</section>
+}

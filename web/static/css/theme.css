@@ -1,0 +1,46 @@
+/* Default to dark theme, respects OS preference as fallback */
+:root {
+    color-scheme: dark;
+    --ff-primary: "Georgia", serif;
+    /* Dark theme values */
+    --text: #f4ecd0;
+    --background: #14110a;
+    --primary: #fad000;
+    --secondary: #ffdf3d;
+    --accent: #fad000;
+    --success: #4fa373;
+    --error: #e85a56;
+
+    /* Card/panel background: sits slightly above --background. */
+    --surface: oklch(from var(--background) calc(l + 0.06) c h);
+
+    --svg-filter: none;
+}
+
+:root[data-theme="light"] {
+    color-scheme: light;
+    --text: #1c1810;
+    --background: #fefaed;
+    --primary: #9a6700;
+    --secondary: #7a5200;
+    --accent: #fad000;
+    --success: #2d8659;
+    --error: #d9332e;
+    --surface: oklch(from var(--background) calc(l - 0.03) c h);
+
+    --svg-filter: none;
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --text: #f4ecd0;
+    --background: #14110a;
+    --primary: #fad000;
+    --secondary: #ffdf3d;
+    --accent: #fad000;
+    --success: #4fa373;
+    --error: #e85a56;
+    --surface: oklch(from var(--background) calc(l + 0.06) c h);
+
+    --svg-filter: invert(1) brightness(1.2);
+}

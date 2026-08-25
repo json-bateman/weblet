@@ -1,0 +1,14 @@
+
+package web
+
+import "fmt"
+
+templ SshPage() {
+	@Layout("/ssh", CommitHash) {
+		<main data-init={ fmt.Sprintf("@get('%s/sse')", SshUrl) }>
+			<h3 class="mb-4">SSH Information</h3>
+			<pre class="config-code">systemctl daemon-reload</pre>
+			<pre class="config-code">systemctl restart { "<service-name>.service" }</pre>
+		</main>
+	}
+}

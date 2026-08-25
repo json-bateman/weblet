@@ -1,0 +1,358 @@
+/*
+ * App-specific styles
+ */
+
+/* App shell: sidebar + main laid out as a flex row so the sidebar PUSHES
+   content (in-flow) above the overlay breakpoint instead of floating over it. */
+#app-shell {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    min-height: 100vh;
+    container-type: inline-size;
+    /* overlay breakpoint measures shell width, not viewport */
+}
+
+#app-shell-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Sidebar: in-flow column on large screens, collapses to zero width. */
+#sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 0;
+    overflow: hidden;
+    transition: width 0.2s ease;
+    border-right: 1px solid oklch(from var(--secondary) l c h / 0.6);
+}
+
+#sidebar.open {
+    width: 220px;
+}
+
+#sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1rem 0.5rem;
+}
+
+#sidebar-nav a {
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    color: var(--text);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+#sidebar-nav a:hover {
+    background: oklch(from var(--secondary) l c h / 0.3);
+}
+
+#sidebar-toggle {
+    border: none;
+    background: transparent;
+    color: var(--text);
+    font-size: 1.4rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Small screens: fixed overlay sliding in from the left. */
+@media (max-width: 768px) {
+    #sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: 220px;
+        transform: translateX(-100%);
+        background: var(--background);
+        border-right: 1px solid oklch(from var(--secondary) l c h / 0.6);
+        z-index: 10;
+    }
+
+    #sidebar.open {
+        transform: translateX(0);
+    }
+}
+
+.page-shell {
+    padding: 1rem 2rem 1rem 2rem;
+}
+
+#masthead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 0.5rem 1rem 0.5rem;
+    border-bottom: oklch(from var(--secondary) l c h / 0.6) 1px solid;
+}
+
+#masthead .brand-stream {
+    font-size: 1.9rem;
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    color: var(--text);
+    position: relative;
+    top: 1px;
+}
+
+img.svg {
+    filter: var(--svg-filter);
+}
+
+.server-info {
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    padding-bottom: 0.5rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 1rem;
+    align-items: start;
+    max-width: 400px;
+}
+
+.server-info header {
+    grid-column: 1 / -1;
+    display: flex;
+    padding: 0.5rem;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.server-info header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.server-info>div.flex {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0rem 0.5rem 0rem 0.5rem;
+    font-weight: 600;
+    color: oklch(from var(--secondary) l c h / 0.9);
+    font-size: 0.95rem;
+}
+
+#sidebar-header {
+    padding: 4px;
+    border-bottom: 1px solid oklch(from var(--secondary) l c h / 0.6);
+    margin-bottom: 8px;
+}
+
+#sidebar-footer {
+    margin-top: auto;
+    padding: 8px;
+    border-top: 1px solid oklch(from var(--secondary) l c h / 0.6);
+    font-size: 0.75rem;
+    text-align: center;
+    color: oklch(from var(--secondary) l c h / 0.6);
+}
+
+/* Configuration list styles */
+.config-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.tree-file {
+    max-width: 550px;
+}
+
+.tree-file pre {
+    background: var(--surface);
+    border-top: 1px solid oklch(from var(--secondary) l c h / 0.6);
+    margin: 0.5rem -0.5rem -0.5rem -0.5rem;
+    padding: 1rem;
+    overflow-x: auto;
+    font-size: 0.85rem;
+}
+
+/* /var/www file tree */
+.file-tree ul.tree {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Indent nested levels, with a guide line down the left. */
+.file-tree ul.tree ul.tree {
+    margin-left: 0.75rem;
+    padding-left: 0.75rem;
+    border-left: 1px solid oklch(from var(--secondary) l c h / 0.35);
+}
+
+.file-tree summary {
+    cursor: pointer;
+    padding: 0.25rem 0.4rem;
+    border-radius: 4px;
+    user-select: none;
+}
+
+.file-tree summary:hover {
+    background: oklch(from var(--secondary) l c h / 0.12);
+}
+
+/* Files are leaf nodes with nothing to expand: no disclosure arrow. */
+.file-tree .tree-file summary {
+    list-style: none;
+    cursor: default;
+}
+
+.file-tree .tree-file summary::-webkit-details-marker {
+    display: none;
+}
+
+.file-tree .tree-file summary:hover {
+    background: none;
+}
+
+.caddy-img {
+    display: inline-block;
+    vertical-align: middle;
+    width: 40px;
+    height: 40px;
+}
+
+.caddy-img img {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.config-code {
+    background: var(--surface);
+    border: 1px solid oklch(from var(--secondary) l c h / 0.6);
+    border-radius: 4px;
+    padding: 1rem;
+    max-width: 100%;
+}
+
+/* Text truncation utility */
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+.progress-box {
+    padding: 0.5rem;
+    background: var(--surface);
+    border: 1px solid oklch(from var(--secondary) l c h / 0.6);
+    border-radius: 4px;
+    max-width: 240px;
+    margin: 1rem 0rem 1rem 0rem;
+}
+
+/* Plain progress bar: width driven by --p, set inline by the server. */
+.progress-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.progress-bar-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.progress-bar-track {
+    height: 0.5rem;
+    border-radius: 999px;
+    background: oklch(from var(--secondary) l c h / 0.25);
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    width: var(--p, 0%);
+    background: var(--primary);
+    border-radius: inherit;
+    transition: width 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.progress-bar-detail {
+    font-size: 0.75rem;
+    color: oklch(from var(--secondary) l c h / 0.9);
+}
+
+/* Segmented button group (styled radio inputs) */
+.cs-buttongroup {
+    display: inline-flex;
+    padding: 0;
+    margin: 0;
+    border: 1px solid oklch(from var(--secondary) l c h / 0.6);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.cs-buttongroup label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.9rem;
+    color: var(--text);
+    cursor: pointer;
+    user-select: none;
+}
+
+.cs-buttongroup label:not(:first-of-type) {
+    border-left: 1px solid oklch(from var(--secondary) l c h / 0.6);
+}
+
+/* Radios stay in the a11y tree and keyboard order, just invisible. */
+.cs-buttongroup input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    pointer-events: none;
+}
+
+.cs-buttongroup label:has(input:checked) {
+    background: var(--primary);
+    color: var(--background);
+}
+
+.cs-buttongroup label:not(:has(input:checked)):hover {
+    background: oklch(from var(--secondary) l c h / 0.3);
+}
+
+/* ------ */
+/* Mobile */
+/* ------ */
+@media (max-width: 768px) {
+    .page-shell {
+        padding: 0.5rem 1rem 0.5rem 1rem;
+    }
+
+    /* Truncate long strings in header */
+    #masthead .brand-stream {
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    #masthead {
+        gap: 0.5rem;
+    }
+
+    .tree-file {
+        max-width: 300px;
+    }
+}

@@ -1,0 +1,47 @@
+package web
+
+import "fmt"
+
+// FileNode is one entry in the /var/www tree: either a directory (with
+// Children) or a regular file (with Content).
+type FileNode struct {
+	Name     string
+	IsDir    bool
+	Children []*FileNode
+}
+
+templ VarWwwPage(nodes []*FileNode) {
+	@Layout("/var/www", CommitHash) {
+		<main data-init={ fmt.Sprintf("@get('%s/sse')", VarWwwUrl) }>
+			<h3 class="mb-4">Static Web Files</h3>
+			<h4 class="color-muted">Serving /var/www</h4>
+			if len(nodes) == 0 {
+				<p class="color-muted">No files found under /var/www</p>
+			} else {
+				<div class="file-tree">
+					@FileTree(nodes)
+				</div>
+			}
+		</main>
+	}
+}
+
+// FileTree renders one level of the tree and recurses into directories.
+templ FileTree(nodes []*FileNode) {
+	<ul class="tree">
+		for _, n := range nodes {
+			<li>
+				if n.IsDir {
+					<details data-ignore-morph class="tree-dir">
+						<summary>📁 { n.Name }</summary>
+						@FileTree(n.Children)
+					</details>
+				} else {
+					<details data-ignore-morph class="tree-file">
+						<summary>📄 { n.Name }</summary>
+					</details>
+				}
+			</li>
+		}
+	</ul>
+}

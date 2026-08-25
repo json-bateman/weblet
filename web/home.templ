@@ -1,0 +1,67 @@
+package web
+
+import (
+	"fmt"
+	"strings"
+)
+
+templ osLogo(osName string) {
+	switch  {
+		case strings.Contains(strings.ToLower(osName), "centos"):
+			<img src={ StaticPath("images/os/centos.png") } alt="CentOS" width="24" height="24"/>
+		case strings.Contains(strings.ToLower(osName), "darwin") || strings.Contains(strings.ToLower(osName), "mac"):
+			<img class="svg" src={ StaticPath("icons/apple.svg") } alt="macOS" width="24" height="24"/>
+	}
+}
+
+templ Home(info ServerInfo) {
+	@Layout("/home", CommitHash) {
+		<main data-init={ fmt.Sprintf("@get('/sse')") }>
+			<h1>{ info.Name }</h1>
+			@ServerInfoCards(info)
+		</main>
+	}
+}
+
+templ ServerInfoCards(info ServerInfo) {
+	<section>
+		<div class="flex gap-2">
+			This Webapp running
+			<img src={ StaticPath("images/go-logo-blue.png") } alt="Goroutines" width="60" height="24"/>
+		</div>
+		<div class="flex gap-4">
+			<span>Version: { info.GoVersion[:8] }</span>
+			<span>Goroutines: { fmt.Sprint(info.Goroutines) }</span>
+		</div>
+		<br/>
+		<div class="server-info">
+			<header class="flex justify-between items-center">
+				<div class="flex gap-2 items-center">
+					<img class="svg" width="40px" height="40px" src={ StaticPath("icons/server.svg") } alt="Server time"/>
+					<h3>Live server info</h3>
+				</div>
+				<span>{ info.Now }</span>
+			</header>
+			<div class="flex gap-2">
+				@osLogo(info.OS)
+				Operating System
+			</div>
+			<div class="truncate">{ info.OS }</div>
+			<div class="flex gap-2">
+				<img src={ StaticPath("images/Linux.png") } alt="Linux" width="24" height="24"/>
+				Kernel
+			</div>
+			<div class="truncate">{ info.Kernel }</div>
+			<div class="flex gap-2">
+				<img src={ StaticPath("images/cpu.png") } alt="Architecture" width="24" height="24"/>
+				Architecture	
+			</div>
+			<div class="truncate">{ info.Arch }</div>
+			<div class="flex gap-2">
+				<img class="svg" src={ StaticPath("icons/clock.svg") } alt="uptime" width="24" height="24"/>
+				Uptime	
+			</div>
+			<div>{ info.Uptime }</div>
+		</div>
+	</section>
+}

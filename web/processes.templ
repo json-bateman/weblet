@@ -1,0 +1,78 @@
+package web
+
+import "fmt"
+
+templ progressBar(label string, percent int, detail string) {
+	<div
+		class="progress-bar"
+		role="progressbar"
+		aria-label={ label }
+		aria-valuemin="0"
+		aria-valuemax="100"
+		aria-valuenow={ fmt.Sprint(percent) }
+		style={ templ.SafeCSS(fmt.Sprintf("--p: %d%%", percent)) }
+	>
+		<div class="progress-bar-header">
+			<span>{ label }</span>
+			<span>{ fmt.Sprint(percent) }%</span>
+		</div>
+		<div class="progress-bar-track">
+			<div class="progress-bar-fill"></div>
+		</div>
+		if detail != "" {
+			<div class="progress-bar-detail">{ detail }</div>
+		}
+	</div>
+}
+
+templ ProcessesPage(procs *ProcessInfo) {
+	@Layout("/procs", CommitHash) {
+		<main data-init={ fmt.Sprintf("@get('%s/sse')", ProcessesUrl) }>
+			<h3>Processes</h3>
+			@ProcessesTable(procs)
+		</main>
+	}
+}
+
+// ProcessTable is patched over SSE with a fresh /proc snapshot, sorted by memory.
+templ ProcessesTable(procs *ProcessInfo) {
+	<section>
+		<h4 class="color-muted">Top { fmt.Sprint(len(procs.Processes)) } By Memory</h4>
+		<div class="progress-box">
+			@progressBar(
+				"Memory Used",
+				int(100-(100*procs.MemInfo.MemFree/procs.MemInfo.MemTotal)),
+				fmt.Sprintf("%.2f GiB of %.2f GiB", procs.MemInfo.MemTotal-procs.MemInfo.MemFree, procs.MemInfo.MemTotal),
+			)
+		</div>
+		<table>
+			<thead>
+				<tr>
+					<th>PID</th>
+					<th>User</th>
+					<th>Command</th>
+					<th>Memory</th>
+					<th>Threads</th>
+					<th>State</th>
+					<th>CPU time</th>
+				</tr>
+			</thead>
+			<tbody>
+				if len(procs.Processes) == 0 {
+					<tr><td colspan="7">No processes found (is this running on Linux?).</td></tr>
+				}
+				for _, p := range procs.Processes {
+					<tr>
+						<td>{ fmt.Sprint(p.PID) }</td>
+						<td>{ p.User }</td>
+						<td>{ p.Command }</td>
+						<td>{ p.RSS }</td>
+						<td>{ fmt.Sprint(p.Threads) }</td>
+						<td>{ p.State }</td>
+						<td>{ p.CPUTime }</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</section>
+}

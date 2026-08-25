@@ -1,0 +1,33 @@
+version: '3'
+
+tasks:
+  setup:
+    desc: Install/update pinned dev tools from go.mod
+    cmds:
+      - go get -tool github.com/air-verse/air
+      - go get -tool github.com/a-h/templ/cmd/templ
+      - go mod tidy
+
+  templ:build:
+    desc: Generate templ files
+    cmd: go tool templ generate
+
+  go:build:
+    desc: Build the web server for production
+    deps: [templ:build]
+    cmds:
+      - mkdir -p ./release
+      - go build -ldflags "-X github.com/json-bateman/centos-streamed/web.CommitHash=$(git rev-parse --short HEAD)" -o ./release/web ./cmd
+      - echo "Release built in ./release/"
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf ./tmp
+      - rm -rf ./release
+      - find . -name "*_templ.go" -delete
+
+  default:
+    desc: Run and watch with air
+    cmds:
+      - go tool air

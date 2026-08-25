@@ -1,0 +1,10 @@
+root = "."
+testdata_dir = "testdata"
+tmp_dir = "tmp"
+
+[build]
+args_bin = []
+entrypoint = "tmp/web"
+cmd = "go tool templ generate && go build -o tmp/web ./cmd"
+include_ext = ["go", "templ", "html", "css"]
+exclude_regex = ["_templ\\.go$"]
