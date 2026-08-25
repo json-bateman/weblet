@@ -1,7 +1,5 @@
 package web
 
-import "fmt"
-
 // FileNode is one entry in the /var/www tree: either a directory (with
 // Children) or a regular file (with Content).
 type FileNode struct {
@@ -12,7 +10,7 @@ type FileNode struct {
 
 templ VarWwwPage(nodes []*FileNode) {
 	@Layout("/var/www", CommitHash) {
-		<main data-init={ fmt.Sprintf("@get('%s/sse')", VarWwwUrl) }>
+		<main>
 			<h3 class="mb-4">Static Web Files</h3>
 			<h4 class="color-muted">Serving /var/www</h4>
 			if len(nodes) == 0 {

@@ -57,7 +57,7 @@ func processesPageSse() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sse := datastar.NewSSE(w, r, datastar.WithCompression(datastar.WithBrotli()))
 
-		ticker := time.NewTicker(time.Duration(UpdateTick) * time.Second)
+		ticker := time.NewTicker(time.Duration(UpdateTick) * (2 * time.Second))
 		defer ticker.Stop()
 
 		for {
@@ -113,50 +113,10 @@ func sshPage() http.HandlerFunc {
 	}
 }
 
-func sshPageSSE() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		sse := datastar.NewSSE(w, r, datastar.WithCompression(datastar.WithBrotli()))
-
-		ticker := time.NewTicker(time.Duration(UpdateTick) * time.Second)
-		defer ticker.Stop()
-
-		for {
-			select {
-			case <-r.Context().Done():
-				return
-			case <-ticker.C:
-				if err := sse.PatchElementTempl(SshPage()); err != nil {
-					return
-				}
-			}
-		}
-	}
-}
-
 func varWwwPage() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := VarWwwPage(readWebTree()).Render(r.Context(), w); err != nil {
 			slog.Debug("render error", "component", "StaticPage", "err", err)
-		}
-	}
-}
-
-func varWwwPageSSE() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		sse := datastar.NewSSE(w, r, datastar.WithCompression(datastar.WithBrotli()))
-
-		ticker := time.NewTicker(time.Duration(UpdateTick) * time.Second)
-		defer ticker.Stop()
-
-		for {
-			select {
-			case <-r.Context().Done():
-				return
-			case <-ticker.C:
-				if err := sse.PatchElementTempl(VarWwwPage(readWebTree())); err != nil {
-					return
-				}
-			}
 		}
 	}
 }

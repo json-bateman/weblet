@@ -63,10 +63,8 @@ func setupRoutes() chi.Router {
 	r.Get(EtcUrl+"/sse", etcPageSSE())
 
 	r.Get(SshUrl, sshPage())
-	r.Get(SshUrl+"/sse", sshPageSSE())
 
 	r.Get(VarWwwUrl, varWwwPage())
-	r.Get(VarWwwUrl+"/sse", varWwwPageSSE())
 	// Serve files embedded in the binary.
 	r.Handle("/static/*", hashfs.FileServer(StaticSys))
 
