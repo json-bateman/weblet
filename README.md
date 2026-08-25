@@ -1,27 +1,7 @@
-# webadelphos
+# Webadelphos (Web Brother)
 
-A tiny Cockpit-style **system monitor**: a single Go binary that serves a live
-web view of the machine it runs on — host facts and the running process list —
-pushed to the browser over server-sent events.
-
-No database, no reverse proxy, no deploy tooling. Just a webserver reading
-`/proc`.
-
-## How it works
-
-`cmd/main.go` starts a [chi] HTTP server. The home page renders a host-info card
-and a process table; a `data-init` [Datastar] attribute opens an SSE connection
-to `/sse`, which every two seconds re-reads `/proc` and patches both fragments
-back into the page live.
-
-- **Host facts** — hostname, `PRETTY_NAME` from `/etc/os-release`, kernel from
-  `/proc/sys/kernel/osrelease`, plus memory/uptime from `/proc` and CPUs/arch
-  from the Go runtime.
-- **Processes** — walks `/proc/<pid>/{status,stat}` for each process: command,
-  resolved user, state, threads, resident memory and cumulative CPU time,
-  sorted by memory (top 40).
-
-These reads only return data on **Linux**, so run it inside the VM, not on macOS.
+A tiny Cockpit-style system monitor for **web servers** specifically: a single Go binary that serves a live
+web view of the machine it runs on — host facts and the running process list — pushed to the browser over server-sent events.
 
 [chi]: https://github.com/go-chi/chi
 [Datastar]: https://data-star.dev
@@ -48,8 +28,7 @@ Then open **http://localhost:44223**. Config is `WEBADELPHOS_`-prefixed (see
 
 ## Development on macOS (Lima VM)
 
-`/proc` only exists on Linux, so run inside the `centos10` VM. The repo is
-mounted at `/home/lima/centos10/webadelphos` and guest port 44223 is
+These files only exist on Linux, so run inside a linux VM, I recommend lima. The repo's port 44223 needs
 forwarded to the host:
 
 ```bash
@@ -67,15 +46,15 @@ over SSH instead of exposing it to the network:
 ssh -L 44223:localhost:44223 user@your-server
 ```
 
-Then open **http://localhost:44223** on your Mac. Add `-N -f` to run the
+Then open **http://localhost:44223** on your local machine. Add `-N -f` to run the
 tunnel in the background, or put a `LocalForward` entry in `~/.ssh/config`
 to avoid retyping the command:
 
 ```
-Host mycentos
-    HostName your-server
+Host myserver 
+    HostName your-server-hostname
     User user
     LocalForward 44223 localhost:44223
 ```
 
-then just `ssh mycentos`.
+then just `ssh myserver`.
