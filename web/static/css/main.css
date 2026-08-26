@@ -5,5 +5,6 @@
 @import "html-elements.css" layer(elements);
 @import "utilities.css" layer(utilities);
 @import "app.css" layer(app);
+@import "microlighter-theme.css" layer(app);
 
 @layer reset, theme, elements, utilities, app;

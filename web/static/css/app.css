@@ -10,7 +10,6 @@
     flex-direction: row;
     min-height: 100vh;
     container-type: inline-size;
-    /* overlay breakpoint measures shell width, not viewport */
 }
 
 #app-shell-main {
@@ -91,16 +90,6 @@
     border-bottom: oklch(from var(--secondary) l c h / 0.6) 1px solid;
 }
 
-#masthead .brand-stream {
-    font-size: 1.9rem;
-    font-weight: 300;
-    line-height: 1;
-    letter-spacing: 0.01em;
-    color: var(--text);
-    position: relative;
-    top: 1px;
-}
-
 img.svg {
     filter: var(--svg-filter);
 }
@@ -142,12 +131,6 @@ img.svg {
     font-weight: 600;
     color: oklch(from var(--secondary) l c h / 0.9);
     font-size: 0.95rem;
-}
-
-#sidebar-header {
-    padding: 4px;
-    border-bottom: 1px solid oklch(from var(--secondary) l c h / 0.6);
-    margin-bottom: 8px;
 }
 
 #sidebar-footer {
@@ -424,14 +407,6 @@ img.svg {
 @media (max-width: 768px) {
     .page-shell {
         padding: 0.5rem 1rem 0.5rem 1rem;
-    }
-
-    /* Truncate long strings in header */
-    #masthead .brand-stream {
-        max-width: 150px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
     }
 
     #masthead {

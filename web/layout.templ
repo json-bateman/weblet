@@ -74,6 +74,7 @@ templ Layout(title, commitHash string) {
 		data-attr:data-theme="$theme"
 		data-effect="localStorage.setItem('theme', $theme)"
 		data-on:keydown__window="hotkey(evt, 't') && ($theme = $theme === 'dark' ? 'light' : 'dark')"
+		data-syntax-theme="tokyo-night"
 		lang="en"
 	>
 		<head>
@@ -165,5 +166,7 @@ templ Layout(title, commitHash string) {
 		<script type="module" src={ StaticPath("js/datastar-inspector.js") }></script>
 		<!-- Datastar v1.0.0-RC.8 -->
 		<script type="module" src={ StaticPath("js/datastar.js") }></script>
+		<!-- MicroLighter v2.1.0 (auto-runner: highlights pre > code[class^="language-"] on load) -->
+		<script type="module" src={ StaticPath("js/microlighter/microlighter.min.js") }></script>
 	</html>
 }

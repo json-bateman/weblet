@@ -22,7 +22,7 @@ templ CaddyConfig(caddyConfig string) {
 					<img src={ StaticPath("images/Caddy.svg") }/>
 				</div>
 			</summary>
-			<pre>{ caddyConfig }</pre>
+			<pre><code class="language-bash">{ caddyConfig }</code></pre>
 		</details>
 	</section>
 }
@@ -37,7 +37,7 @@ templ FileList(files []struct{ Name, Content string }) {
 				for _, container := range files {
 					<details data-ignore-morph class="tree-file">
 						<summary>📄 { container.Name }</summary>
-						<pre>{ container.Content }</pre>
+						<pre><code class="language-toml">{ container.Content }</code></pre>
 					</details>
 				}
 			</div>
