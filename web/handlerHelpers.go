@@ -3,6 +3,7 @@ package web
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -51,6 +52,40 @@ func readUnitFiles() []struct{ Name, Content string } {
 	})
 
 	return containers
+}
+
+// runningQuadletServices returns the systemd service names for Quadlet
+// container units (/etc/containers/systemd/*.container) that are currently
+// running, by cross-referencing configured units against systemctl's list
+// of running services.
+func runningQuadletServices() []string {
+	configured := make(map[string]bool)
+	for _, c := range readUnitFiles() {
+		name := strings.TrimSuffix(c.Name, filepath.Ext(c.Name))
+		configured[name+".service"] = true
+	}
+	if len(configured) == 0 {
+		return nil
+	}
+
+	out, err := exec.Command("systemctl", "list-units", "--type=service", "--state=running", "--plain", "--no-legend", "--no-pager").Output()
+	if err != nil {
+		return nil
+	}
+
+	var running []string
+	for line := range strings.SplitSeq(string(out), "\n") {
+		fields := strings.Fields(line)
+		if len(fields) == 0 {
+			continue
+		}
+		if configured[fields[0]] {
+			running = append(running, fields[0])
+		}
+	}
+
+	sort.Strings(running)
+	return running
 }
 
 // readWebTree returns the /var/www directory tree, with directories listed

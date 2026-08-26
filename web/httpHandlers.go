@@ -107,7 +107,7 @@ func etcPageSSE() http.HandlerFunc {
 
 func sshPage() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := SshPage().Render(r.Context(), w); err != nil {
+		if err := QuadletsPage(runningQuadletServices()).Render(r.Context(), w); err != nil {
 			slog.Debug("render error", "component", "EtcPage", "err", err)
 		}
 	}

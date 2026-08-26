@@ -62,7 +62,6 @@ templ ShortcutsDialog() {
 					</tr>
 				</tbody>
 			</table>
-			<p class="color-muted shortcuts-note">Shortcuts are ignored while typing in a field.</p>
 		</div>
 	</div>
 }
@@ -111,7 +110,7 @@ templ Layout(title, commitHash string) {
 						<a href={ templ.SafeURL(ProcessesUrl) }>/proc</a>
 						<a href={ templ.SafeURL(EtcUrl) }>/etc</a>
 						<a href={ templ.SafeURL(VarWwwUrl) }>/var/www</a>
-						<a href={ templ.SafeURL(SshUrl) }>misc</a>
+						<a href={ templ.SafeURL(QuadletsUrl) }>Quadlets</a>
 					</nav>
 					<div id="sidebar-footer">{ commitHash }</div>
 				</aside>

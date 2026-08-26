@@ -29,14 +29,32 @@ const (
 	HomeUrl      = "/"
 	ProcessesUrl = "/proc"
 	EtcUrl       = "/etc"
-	SshUrl       = "/ssh"
 	VarWwwUrl    = "/var/www"
+	QuadletsUrl  = "/quadlets"
 )
 
 // StaticPath returns the hashed URL for a file under static/, e.g.
 // StaticPath("css/main.css") -> "/static/css/main.abc123.css".
 func StaticPath(format string, args ...any) string {
 	return "/" + StaticSys.HashName(fmt.Sprintf("static/"+format, args...))
+}
+
+// cacheUnhashedStatic stamps an ETag on static assets requested by a plain,
+// unhashed path (e.g. a file pulled in via a CSS @import or a JS dynamic
+// import, which never goes through StaticPath) so http.ServeContent - called
+// inside hashfs's own handler - can answer future requests with a 304
+// instead of re-sending the whole file on every navigation.
+func cacheUnhashedStatic(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		name := strings.TrimPrefix(r.URL.Path, "/")
+		if _, hash := hashfs.ParseName(name); hash == "" {
+			if _, h := hashfs.ParseName(StaticSys.HashName(name)); h != "" {
+				w.Header().Set("ETag", "\""+h+"\"")
+				w.Header().Set("Cache-Control", "public, max-age=3600, must-revalidate")
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 func getCommitHash() string {
@@ -62,11 +80,11 @@ func setupRoutes() chi.Router {
 	r.Get(EtcUrl, etcPage())
 	r.Get(EtcUrl+"/sse", etcPageSSE())
 
-	r.Get(SshUrl, sshPage())
+	r.Get(QuadletsUrl, sshPage())
 
 	r.Get(VarWwwUrl, varWwwPage())
 	// Serve files embedded in the binary.
-	r.Handle("/static/*", hashfs.FileServer(StaticSys))
+	r.Handle("/static/*", cacheUnhashedStatic(hashfs.FileServer(StaticSys)))
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)

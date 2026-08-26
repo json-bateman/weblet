@@ -1,0 +1,27 @@
+
+package web
+
+templ QuadletsPage(runningServices []string) {
+	@Layout("Quadlets", CommitHash) {
+		<main>
+			<h3 class="mb-4">Quadlet Information</h3>
+			<h4 class="color-muted mb-4">Running Quadlet Services</h4>
+			if len(runningServices) == 0 {
+				<p class="color-muted">No Quadlet services currently running</p>
+			} else {
+				<ul>
+					for _, name := range runningServices {
+						<li>{ name }</li>
+					}
+				</ul>
+			}
+			<span>Common Systemctl commands</span>
+			<pre>
+				<code class="language-bash">
+					systemctl daemon-reload
+					systemctl restart { "<service-name>.service" }
+				</code>
+			</pre>
+		</main>
+	}
+}
