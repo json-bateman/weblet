@@ -28,8 +28,7 @@ var CommitHash = "dev"
 const (
 	HomeUrl      = "/"
 	ProcessesUrl = "/proc"
-	EtcUrl       = "/etc"
-	VarWwwUrl    = "/var/www"
+	FilesUrl     = "/files"
 	QuadletsUrl  = "/quadlets"
 )
 
@@ -77,12 +76,11 @@ func setupRoutes() chi.Router {
 	r.Get(ProcessesUrl, processesPage())
 	r.Get(ProcessesUrl+"/sse", processesPageSse())
 
-	r.Get(EtcUrl, etcPage())
-	r.Get(EtcUrl+"/sse", etcPageSSE())
+	r.Get(FilesUrl, filesPage())
+	r.Get(FilesUrl+"/sse", filesPageSSE())
 
 	r.Get(QuadletsUrl, sshPage())
 
-	r.Get(VarWwwUrl, varWwwPage())
 	// Serve files embedded in the binary.
 	r.Handle("/static/*", cacheUnhashedStatic(hashfs.FileServer(StaticSys)))
 

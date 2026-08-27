@@ -73,17 +73,18 @@ func processesPageSse() http.HandlerFunc {
 	}
 }
 
-func etcPage() http.HandlerFunc {
+func filesPage() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		caddyConfig := readCaddyfile()
-		files := readUnitFiles()
-		if err := EtcPage(caddyConfig, files).Render(r.Context(), w); err != nil {
-			slog.Debug("render error", "component", "EtcPage", "err", err)
+		units := readUnitFiles()
+		webNodes := readWebTree()
+		if err := FilesPage(caddyConfig, units, webNodes).Render(r.Context(), w); err != nil {
+			slog.Debug("render error", "component", "FilesPage", "err", err)
 		}
 	}
 }
 
-func etcPageSSE() http.HandlerFunc {
+func filesPageSSE() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sse := datastar.NewSSE(w, r, datastar.WithCompression(datastar.WithBrotli()))
 
@@ -96,8 +97,9 @@ func etcPageSSE() http.HandlerFunc {
 				return
 			case <-ticker.C:
 				caddyConfig := readCaddyfile()
-				containers := readUnitFiles()
-				if err := sse.PatchElementTempl(EtcPage(caddyConfig, containers)); err != nil {
+				units := readUnitFiles()
+				webNodes := readWebTree()
+				if err := sse.PatchElementTempl(FilesPage(caddyConfig, units, webNodes)); err != nil {
 					return
 				}
 			}
@@ -109,14 +111,6 @@ func sshPage() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := QuadletsPage(runningQuadletServices()).Render(r.Context(), w); err != nil {
 			slog.Debug("render error", "component", "EtcPage", "err", err)
-		}
-	}
-}
-
-func varWwwPage() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if err := VarWwwPage(readWebTree()).Render(r.Context(), w); err != nil {
-			slog.Debug("render error", "component", "StaticPage", "err", err)
 		}
 	}
 }

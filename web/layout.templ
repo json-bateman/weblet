@@ -82,7 +82,7 @@ templ Layout(title, commitHash string) {
 		data-attr:data-bs-theme="$theme"
 		data-effect="localStorage.setItem('theme', $theme)"
 		data-on:keydown__window="hotkey(evt, 't') && ($theme = $theme === 'dark' ? 'light' : 'dark')"
-		data-syntax-theme="tokyo-night"
+		data-syntax-theme="gruvbox"
 		lang="en"
 	>
 		<head>
@@ -117,8 +117,7 @@ templ Layout(title, commitHash string) {
 					<nav id="sidebar-nav" class="nav flex-column">
 						<a class="nav-link" href={ templ.SafeURL(HomeUrl) }>/</a>
 						<a class="nav-link" href={ templ.SafeURL(ProcessesUrl) }>/proc</a>
-						<a class="nav-link" href={ templ.SafeURL(EtcUrl) }>/etc</a>
-						<a class="nav-link" href={ templ.SafeURL(VarWwwUrl) }>/var/www</a>
+						<a class="nav-link" href={ templ.SafeURL(FilesUrl) }>Files</a>
 						<a class="nav-link" href={ templ.SafeURL(QuadletsUrl) }>Quadlets</a>
 					</nav>
 					<div id="sidebar-footer">{ commitHash }</div>

@@ -1,0 +1,94 @@
+package web
+
+import "fmt"
+
+// FileNode is one entry in the /var/www tree: either a directory (with
+// Children) or a regular file (with Content).
+type FileNode struct {
+	Name     string
+	IsDir    bool
+	Children []*FileNode
+}
+
+templ FilesPage(caddyConfig string, units []struct{ Name, Content string }, webNodes []*FileNode) {
+	@Layout("/files", CommitHash) {
+		<main data-init={ fmt.Sprintf("@get('%s/sse')", FilesUrl) }>
+			<h3 class="mb-4">Files</h3>
+			<div class="row g-3">
+				<div class="col-12 col-lg-6">
+					@CaddyConfig(caddyConfig)
+					<br/>
+					@FileList(units)
+				</div>
+				<div class="col-12 col-lg-6">
+					@VarWwwTree(webNodes)
+				</div>
+			</div>
+		</main>
+	}
+}
+
+templ CaddyConfig(caddyConfig string) {
+	<section>
+		<h5 class="text-muted">Caddy Configuration: /etc/caddy/Caddyfile</h5>
+		<details data-ignore-morph class="tree-file">
+			<summary>
+				<div class="caddy-img">
+					<img src={ StaticPath("images/Caddy.svg") }/>
+				</div>
+			</summary>
+			<pre><code class="language-bash">{ caddyConfig }</code></pre>
+		</details>
+	</section>
+}
+
+templ FileList(files []struct{ Name, Content string }) {
+	<section>
+		<h5 class="text-muted">Quadlet Unit Files: /etc/containers/systemd/</h5>
+		if len(files) == 0 {
+			<p class="text-muted">No files found</p>
+		} else {
+			<div class="d-grid gap-3">
+				for _, container := range files {
+					<details data-ignore-morph class="tree-file">
+						<summary><img class="svg" src={ StaticPath("icons/file.svg") }/> { container.Name }</summary>
+						<pre><code class="language-toml">{ container.Content }</code></pre>
+					</details>
+				}
+			</div>
+		}
+	</section>
+}
+
+templ VarWwwTree(nodes []*FileNode) {
+	<section>
+		<h5 class="text-muted">Static Files: /var/www</h5>
+		if len(nodes) == 0 {
+			<p class="text-muted">No files found under /var/www</p>
+		} else {
+			<div class="file-tree">
+				@FileTree(nodes)
+			</div>
+		}
+	</section>
+}
+
+// FileTree renders one level of the tree and recurses into directories.
+templ FileTree(nodes []*FileNode) {
+	<ul class="tree">
+		for _, n := range nodes {
+			<li>
+				if n.IsDir {
+					<details data-ignore-morph class="tree-dir">
+						<summary><img class="svg" src={ StaticPath("icons/folder.svg") }/> { n.Name }</summary>
+						@FileTree(n.Children)
+					</details>
+				} else {
+					<details data-ignore-morph class="tree-file">
+						<summary><img class="svg" src={ StaticPath("icons/file.svg") }/> { n.Name }</summary>
+					</details>
+				}
+			</li>
+		}
+	</ul>
+}
