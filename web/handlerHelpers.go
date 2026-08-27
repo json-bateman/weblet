@@ -5,8 +5,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"sort"
+	"strconv"
 	"strings"
+	"time"
 )
 
 // readCaddyfile reads the Caddy configuration file from /etc/caddy/Caddyfile
@@ -88,14 +91,78 @@ func runningQuadletServices() []string {
 	return running
 }
 
+// isRunningQuadletService reports whether name is one of the currently
+// running Quadlet services. Used to validate a client-supplied service name
+// before it's ever passed to exec.Command, rather than trusting request
+// input to pick which unit journalctl reads.
+func isRunningQuadletService(name string) bool {
+	return slices.Contains(runningQuadletServices(), name)
+}
+
+// readServiceLogs returns the last n lines of a systemd unit's journal.
+func readServiceLogs(service string, n int) string {
+	out, err := exec.Command("journalctl", "-u", service, "-n", strconv.Itoa(n), "--no-pager", "--output=short-iso").CombinedOutput()
+	if err != nil {
+		return fmt.Sprintf("Error reading logs for %s: %s\n%s", service, err, out)
+	}
+	return string(out)
+}
+
+// ServiceStatus is a systemd unit's live status, as shown above its log tail.
+type ServiceStatus struct {
+	ActiveState string // "active", "failed"
+	SubState    string // "running", "dead"
+	PID         string
+	Since       string // human-readable duration since it entered ActiveState
+	Restarts    string
+}
+
+// systemdTimestampLayout matches the default format of systemctl show's
+// ActiveEnterTimestamp, e.g. "Wed 2026-08-27 10:15:32 UTC".
+const systemdTimestampLayout = "Mon 2006-01-02 15:04:05 MST"
+
+// readServiceStatus reads a systemd unit's current status via `systemctl
+// show`. Properties come back as KEY=VALUE lines - not necessarily in the
+// order requested, so they're parsed into a map by name rather than by
+// position.
+func readServiceStatus(service string) ServiceStatus {
+	out, err := exec.Command(
+		"systemctl", "show", service,
+		"--property=ActiveState,SubState,MainPID,ActiveEnterTimestamp,NRestarts",
+	).Output()
+	if err != nil {
+		return ServiceStatus{ActiveState: "unknown"}
+	}
+
+	props := make(map[string]string)
+	for line := range strings.SplitSeq(string(out), "\n") {
+		key, val, ok := strings.Cut(line, "=")
+		if ok {
+			props[key] = val
+		}
+	}
+
+	since := "unknown"
+	if t, err := time.Parse(systemdTimestampLayout, props["ActiveEnterTimestamp"]); err == nil {
+		since = formatDuration(time.Since(t))
+	}
+
+	return ServiceStatus{
+		ActiveState: props["ActiveState"],
+		SubState:    props["SubState"],
+		PID:         props["MainPID"],
+		Since:       since,
+		Restarts:    props["NRestarts"],
+	}
+}
+
 // readWebTree returns the /var/www directory tree, with directories listed
 // before files and each level sorted alphabetically.
 func readWebTree() []*FileNode {
 	return readDirTree("/var/www")
 }
 
-// readDirTree recursively reads dir into FileNodes. File contents are loaded
-// eagerly; unreadable files get empty content rather than aborting the walk.
+// readDirTree recursively reads dir into FileNodes
 func readDirTree(dir string) []*FileNode {
 	entries, err := os.ReadDir(dir)
 	if err != nil {

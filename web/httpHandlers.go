@@ -114,3 +114,38 @@ func sshPage() http.HandlerFunc {
 		}
 	}
 }
+
+// logLines caps how many journal lines are fetched per tail.
+const logLines = 200
+
+// quadletLogsSSE streams a periodic journalctl tail for one Quadlet service,
+// picked by the ?service= query param. The name is validated against the
+// currently running services rather than trusted, since it's client input
+// and gets passed straight to exec.Command.
+func quadletLogsSSE() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		service := r.URL.Query().Get("service")
+		if !isRunningQuadletService(service) {
+			http.Error(w, "unknown or not-running service", http.StatusBadRequest)
+			return
+		}
+
+		sse := datastar.NewSSE(w, r, datastar.WithCompression(datastar.WithBrotli()))
+
+		ticker := time.NewTicker(time.Duration(UpdateTick) * (2 * time.Second))
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-r.Context().Done():
+				return
+			case <-ticker.C:
+				status := readServiceStatus(service)
+				logs := readServiceLogs(service, logLines)
+				if err := sse.PatchElementTempl(ServiceLogPane(service, status, logs)); err != nil {
+					return
+				}
+			}
+		}
+	}
+}

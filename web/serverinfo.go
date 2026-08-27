@@ -109,7 +109,12 @@ func uptime() string {
 	if err != nil {
 		return "unknown"
 	}
-	d := time.Duration(secs) * time.Second
+	return formatDuration(time.Duration(secs) * time.Second)
+}
+
+// formatDuration renders a duration as "1d 2h 3m", dropping leading units
+// that are zero.
+func formatDuration(d time.Duration) string {
 	days := int(d.Hours()) / 24
 	hours := int(d.Hours()) % 24
 	mins := int(d.Minutes()) % 60

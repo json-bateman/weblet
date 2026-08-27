@@ -23,6 +23,7 @@
 #sidebar {
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
     width: 0;
     overflow: hidden;
     transition: width 0.2s ease;

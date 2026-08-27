@@ -1,23 +1,86 @@
-
 package web
+
+import (
+	"fmt"
+	"net/url"
+)
 
 templ QuadletsPage(runningServices []string) {
 	@Layout("Quadlets", CommitHash) {
-		<main>
+		<main data-signals={ fmt.Sprintf(`{activeService: "%s"}`, firstOrEmpty(runningServices)) }>
 			<h3 class="mb-4">Quadlet Information</h3>
-			<h4 class="text-muted mb-4">Running Quadlet Services</h4>
 			if len(runningServices) == 0 {
 				<p class="text-muted">No Quadlet services currently running</p>
 			} else {
-				<ul class="list-group list-group-flush mb-3" style="max-width: 400px;">
+				<h4 class="fs-6 text-muted">Service Logs</h4>
+				<ul class="nav nav-tabs">
 					for _, name := range runningServices {
-						<li class="list-group-item">{ name }</li>
+						<li class="nav-item">
+							<button
+								type="button"
+								class="nav-link"
+								data-class={ fmt.Sprintf(`{active: $activeService === "%s"}`, name) }
+								data-on:click={ fmt.Sprintf(`$activeService = "%s"`, name) }
+							>{ name }</button>
+						</li>
 					}
 				</ul>
+				<div class="tab-content border border-top-0 p-3 mb-3">
+					for _, name := range runningServices {
+						<div
+							class="tab-pane"
+							data-class={ fmt.Sprintf(`{active: $activeService === "%s", show: $activeService === "%s"}`, name, name) }
+							data-init={ fmt.Sprintf("@get('%s/logs/sse?service=%s')", QuadletsUrl, url.QueryEscape(name)) }
+						>
+							@ServiceLogPane(name, readServiceStatus(name), "Loading logs...")
+						</div>
+					}
+				</div>
 			}
-			<h4 class="fs-6 text-muted">Common Systemctl commands</h4>
-			<pre class="p-3 rounded border bg-body-secondary" style="max-width: 550px;"><code class="language-bash">systemctl daemon-reload
-systemctl restart { "<service-name>.service" }</code></pre>
 		</main>
+	}
+}
+
+// ServiceLogPane is patched over SSE with a fresh status + journalctl tail,
+// matched by id so Datastar can morph it in place without disturbing tab state.
+templ ServiceLogPane(service string, status ServiceStatus, logs string) {
+	<div id={ "log-" + service }>
+		<div class="d-flex flex-wrap gap-3 align-items-center small text-muted mb-2">
+			<span class={ "badge", badgeClass(status.ActiveState) }>{ status.ActiveState }</span>
+			<span>{ status.SubState }</span>
+			if status.PID != "" && status.PID != "0" {
+				<span>PID { status.PID }</span>
+			}
+			<span>since { status.Since }</span>
+			<span>{ status.Restarts } restarts</span>
+		</div>
+		<pre class="mb-0" style="max-height: 400px; overflow: auto;"><code class="language-bash">{ logs }</code></pre>
+	</div>
+}
+
+// firstOrEmpty returns the first element of names, or "" if it's empty -
+// used to default the active tab to the first running service.
+func firstOrEmpty(names []string) string {
+	if len(names) == 0 {
+		return ""
+	}
+	return names[0]
+}
+
+// badgeClass maps a systemd ActiveState to a Bootstrap badge color utility class.
+func badgeClass(activeState string) string {
+	switch activeState {
+	case "active":
+		return "text-bg-success"
+	case "activating", "reloading":
+		return "text-bg-info"
+	case "deactivating", "maintenance":
+		return "text-bg-warning"
+	case "inactive":
+		return "text-bg-secondary"
+	case "failed":
+		return "text-bg-danger"
+	default:
+		return "text-bg-secondary"
 	}
 }

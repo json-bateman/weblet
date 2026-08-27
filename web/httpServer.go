@@ -80,6 +80,7 @@ func setupRoutes() chi.Router {
 	r.Get(FilesUrl+"/sse", filesPageSSE())
 
 	r.Get(QuadletsUrl, sshPage())
+	r.Get(QuadletsUrl+"/logs/sse", quadletLogsSSE())
 
 	// Serve files embedded in the binary.
 	r.Handle("/static/*", cacheUnhashedStatic(hashfs.FileServer(StaticSys)))
