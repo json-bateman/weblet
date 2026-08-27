@@ -84,30 +84,7 @@ func filesPage() http.HandlerFunc {
 	}
 }
 
-func filesPageSSE() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		sse := datastar.NewSSE(w, r, datastar.WithCompression(datastar.WithBrotli()))
-
-		ticker := time.NewTicker(time.Duration(UpdateTick) * time.Second)
-		defer ticker.Stop()
-
-		for {
-			select {
-			case <-r.Context().Done():
-				return
-			case <-ticker.C:
-				caddyConfig := readCaddyfile()
-				units := readUnitFiles()
-				webNodes := readWebTree()
-				if err := sse.PatchElementTempl(FilesPage(caddyConfig, units, webNodes)); err != nil {
-					return
-				}
-			}
-		}
-	}
-}
-
-func sshPage() http.HandlerFunc {
+func quadletsPage() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := QuadletsPage(runningQuadletServices()).Render(r.Context(), w); err != nil {
 			slog.Debug("render error", "component", "EtcPage", "err", err)
@@ -116,7 +93,7 @@ func sshPage() http.HandlerFunc {
 }
 
 // logLines caps how many journal lines are fetched per tail.
-const logLines = 200
+const logLines = 50
 
 // quadletLogsSSE streams a periodic journalctl tail for one Quadlet service,
 // picked by the ?service= query param. The name is validated against the

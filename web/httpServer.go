@@ -77,9 +77,8 @@ func setupRoutes() chi.Router {
 	r.Get(ProcessesUrl+"/sse", processesPageSse())
 
 	r.Get(FilesUrl, filesPage())
-	r.Get(FilesUrl+"/sse", filesPageSSE())
 
-	r.Get(QuadletsUrl, sshPage())
+	r.Get(QuadletsUrl, quadletsPage())
 	r.Get(QuadletsUrl+"/logs/sse", quadletLogsSSE())
 
 	// Serve files embedded in the binary.

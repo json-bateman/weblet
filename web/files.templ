@@ -1,7 +1,5 @@
 package web
 
-import "fmt"
-
 // FileNode is one entry in the /var/www tree: either a directory (with
 // Children) or a regular file (with Content).
 type FileNode struct {
@@ -12,7 +10,7 @@ type FileNode struct {
 
 templ FilesPage(caddyConfig string, units []struct{ Name, Content string }, webNodes []*FileNode) {
 	@Layout("/files", CommitHash) {
-		<main data-init={ fmt.Sprintf("@get('%s/sse')", FilesUrl) }>
+		<main>
 			<h3 class="mb-4">Files</h3>
 			<div class="row g-3">
 				<div class="col-12 col-lg-6">
