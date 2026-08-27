@@ -1,6 +1,6 @@
-// Package webadelphos holds process-wide configuration for the webadelphos
+// Package weblet holds process-wide configuration for the weblet
 // system monitor.
-package webadelphos
+package weblet
 
 import (
 	"log/slog"
@@ -23,7 +23,7 @@ func LoadSettings() *Config {
 		slog.Warn(".env file not found, using system environment variables instead")
 	}
 
-	if err := envconfig.Process("webadelphos", &Env); err != nil {
+	if err := envconfig.Process("weblet", &Env); err != nil {
 		slog.Error("Failed to load environment configuration", "error", err)
 		os.Exit(1)
 	}

@@ -1,4 +1,4 @@
-module github.com/json-bateman/webadelphos
+module github.com/json-bateman/weblet
 
 go 1.26.0
 

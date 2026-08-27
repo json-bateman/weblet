@@ -1,4 +1,4 @@
-// Command webadelphos is a tiny Cockpit-style system monitor: a single Go
+// Command weblet is a tiny Cockpit-style system monitor: a single Go
 // binary that serves a live web view of the machine it runs on — host facts and
 // the running process list — pushed to the browser over server-sent events.
 package main
@@ -12,8 +12,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/json-bateman/webadelphos"
-	"github.com/json-bateman/webadelphos/web"
+	"github.com/json-bateman/weblet"
+	"github.com/json-bateman/weblet/web"
 )
 
 func main() {
@@ -31,7 +31,7 @@ func main() {
 }
 
 func run(ctx context.Context) error {
-	webadelphos.LoadSettings()
+	weblet.LoadSettings()
 
 	if err := web.RunBlocking(ctx); err != nil {
 		return fmt.Errorf("run web server: %w", err)

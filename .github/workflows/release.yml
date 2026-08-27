@@ -33,10 +33,10 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
           CGO_ENABLED: 0
         run: |
-          go build -ldflags "-X github.com/json-bateman/webadelphos/web.CommitHash=${GITHUB_SHA::7}" \
-            -o webadelphos-linux-${{ matrix.goarch }} ./cmd
+          go build -ldflags "-X github.com/json-bateman/weblet/web.CommitHash=${GITHUB_SHA::7}" \
+            -o weblet-linux-${{ matrix.goarch }} ./cmd
 
       - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
-          files: webadelphos-linux-${{ matrix.goarch }}
+          files: weblet-linux-${{ matrix.goarch }}

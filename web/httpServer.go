@@ -13,7 +13,7 @@ import (
 	"github.com/benbjohnson/hashfs"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/json-bateman/webadelphos"
+	"github.com/json-bateman/weblet"
 )
 
 //go:embed static/*
@@ -104,7 +104,7 @@ func RunBlocking(setupCtx context.Context) error {
 	}
 	router := setupRoutes()
 
-	addr := fmt.Sprintf(":%d", webadelphos.Env.Port)
+	addr := fmt.Sprintf(":%d", weblet.Env.Port)
 	srv := http.Server{
 		Addr:    addr,
 		Handler: router,
