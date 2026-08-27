@@ -1,4 +1,5 @@
 @import "./open-props.css";
+@import "fonts.css";
 
 @import "reset.css" layer(reset);
 @import "theme.css" layer(theme);

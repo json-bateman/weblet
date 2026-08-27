@@ -8,38 +8,66 @@ import (
 	"time"
 )
 
-// ServerInfo is the live host information rendered into the page. Everything is
-// read at request time — the hostname from the OS, OS/kernel from /etc and
-// /proc, and the rest from the Go runtime and /proc — so it reflects whatever
-// machine the binary is running on.
+// Static host facts
+var (
+	Name      string
+	Kernel    string
+	Osrelease string
+	Arch      string
+	GoVersion string
+	NumCPU    int
+)
+
+func init() {
+	name, err := os.Hostname()
+	if err != nil {
+		name = "unknown-host"
+	}
+	Name = name
+	Kernel = kernelRelease()
+	Osrelease = osPrettyName()
+	Arch = runtime.GOARCH
+	GoVersion = runtime.Version()
+	NumCPU = runtime.NumCPU()
+}
+
+// ServerInfo is the live host information rendered into the page. The static
+// fields (Name, OS, Kernel, Arch, GoVersion, CPUs) are captured once at
+// startup; Uptime, Now, Goroutines, CPUPercent, CoreUsage, and MemInfo are
+// re-read on every poll since they actually change over time.
 type ServerInfo struct {
 	Name       string
 	OS         string
 	Kernel     string
 	Arch       string
-	CPUs       int
 	GoVersion  string
+	CPUs       int
 	Uptime     string
 	Now        string
 	Goroutines int
+	CPUPercent float64
+	CoreUsage  []CoreUsage
+	MemInfo    *MemInfo
+	DiskInfo   DiskInfo
 }
 
-// collectServerInfo gathers a fresh snapshot of host information.
+// collectServerInfo gathers a fresh snapshot of the host's state
 func collectServerInfo() ServerInfo {
-	name, err := os.Hostname()
-	if err != nil {
-		name = "unknown-host"
-	}
+	total, free := meminfo()
 	return ServerInfo{
-		Name:       name,
-		OS:         osPrettyName(),
-		Kernel:     kernelRelease(),
-		Arch:       runtime.GOARCH,
-		CPUs:       runtime.NumCPU(),
-		GoVersion:  runtime.Version(),
+		Name:       Name,
+		OS:         Osrelease,
+		Kernel:     Kernel,
+		Arch:       Arch,
+		GoVersion:  GoVersion,
+		CPUs:       NumCPU,
 		Uptime:     uptime(),
 		Now:        time.Now().UTC().Format("15:04:05 MST"),
 		Goroutines: runtime.NumGoroutine(),
+		CPUPercent: cpuUsagePercent(),
+		CoreUsage:  cpuCoreUsagePercents(),
+		MemInfo:    &MemInfo{MemTotal: total, MemFree: free},
+		DiskInfo:   diskUsage(),
 	}
 }
 
@@ -50,7 +78,7 @@ func osPrettyName() string {
 	if err != nil {
 		return runtime.GOOS
 	}
-	for _, line := range strings.Split(string(data), "\n") {
+	for line := range strings.SplitSeq(string(data), "\n") {
 		if v, ok := strings.CutPrefix(line, "PRETTY_NAME="); ok {
 			return strings.Trim(v, `"`)
 		}

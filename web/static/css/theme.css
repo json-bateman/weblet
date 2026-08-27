@@ -1,7 +1,7 @@
 /* Default to dark theme, respects OS preference as fallback */
 :root {
     color-scheme: dark;
-    --ff-primary: "Georgia", serif;
+    --ff-primary: "IBM Plex Mono", ui-monospace, monospace;
     /* Dark theme values */
     --text: #f4ecd0;
     --background: #14110a;
