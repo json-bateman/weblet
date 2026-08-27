@@ -12,9 +12,9 @@ templ VarWwwPage(nodes []*FileNode) {
 	@Layout("/var/www", CommitHash) {
 		<main>
 			<h3 class="mb-4">Static Web Files</h3>
-			<h4 class="color-muted">Serving /var/www</h4>
+			<h4 class="text-muted">Serving /var/www</h4>
 			if len(nodes) == 0 {
-				<p class="color-muted">No files found under /var/www</p>
+				<p class="text-muted">No files found under /var/www</p>
 			} else {
 				<div class="file-tree">
 					@FileTree(nodes)
@@ -31,12 +31,12 @@ templ FileTree(nodes []*FileNode) {
 			<li>
 				if n.IsDir {
 					<details data-ignore-morph class="tree-dir">
-						<summary>📁 { n.Name }</summary>
+						<summary><img class="svg" src={ StaticPath("icons/folder.svg") }/> { n.Name }</summary>
 						@FileTree(n.Children)
 					</details>
 				} else {
 					<details data-ignore-morph class="tree-file">
-						<summary>📄 { n.Name }</summary>
+						<summary><img class="svg" src={ StaticPath("icons/file.svg") }/> { n.Name }</summary>
 					</details>
 				}
 			</li>

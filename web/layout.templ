@@ -5,63 +5,72 @@ import "strings"
 templ BrandLogo(osName string) {
 	switch  {
 		case strings.Contains(strings.ToLower(osName), "darwin") || strings.Contains(strings.ToLower(osName), "mac"):
-			<div class="flex items-center gap-4">
+			<div class="d-flex align-items-center gap-3">
 				<img class="svg" src={ StaticPath("icons/apple.svg") } alt="macOS" width="48" height="48"/>
 			</div>
 		case strings.Contains(strings.ToLower(osName), "centos"):
-			<div class="flex items-center gap-4">
+			<div class="d-flex align-items-center gap-3">
 				<img src={ StaticPath("images/centos-stream.png") } alt="CentOS Stream" width="163" height="48"/>
 			</div>
 		case strings.Contains(strings.ToLower(osName), "nixos"):
-			<div class="flex items-center gap-4">
+			<div class="d-flex align-items-center gap-3">
 				<img src={ StaticPath("images/os/nixos.png") } alt="NixOS" width="48" height="48"/>
 			</div>
 		default:
-			<div class="flex items-center gap-4">
+			<div class="d-flex align-items-center gap-3">
 				<img src={ StaticPath("images/linux.png") } alt="linux" width="163" height="48"/>
 			</div>
 	}
 }
 
 templ ShortcutsDialog() {
-	<div id="shortcuts-overlay" data-class="{open: $shortcutsOpen}">
+	<div
+		id="shortcuts-overlay"
+		class="modal d-none"
+		data-class="{'d-block': $shortcutsOpen, 'd-none': !$shortcutsOpen}"
+	>
 		<div
 			id="shortcuts-dialog"
+			class="modal-dialog modal-dialog-centered"
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="shortcuts-title"
 			data-on:click__outside="!evt.target.closest('#shortcuts-toggle') && ($shortcutsOpen = false)"
 			data-on:keydown__window="evt.key === 'Escape' && ($shortcutsOpen = false)"
 		>
-			<div class="flex items-center justify-between mb-4">
-				<h3 id="shortcuts-title">Keyboard Shortcuts</h3>
-				<button
-					type="button"
-					class="cursor-pointer"
-					aria-label="Close"
-					data-on:click="$shortcutsOpen = false"
-				>✕</button>
+			<div class="modal-content">
+				<div class="modal-header">
+					<h3 class="modal-title fs-5" id="shortcuts-title">Keyboard Shortcuts</h3>
+					<button
+						type="button"
+						class="btn-close"
+						aria-label="Close"
+						data-on:click="$shortcutsOpen = false"
+					></button>
+				</div>
+				<div class="modal-body">
+					<table class="table table-borderless mb-0">
+						<tbody>
+							<tr>
+								<td class="w-25"><kbd>t</kbd></td>
+								<td>Toggle light / dark theme</td>
+							</tr>
+							<tr>
+								<td><kbd>s</kbd></td>
+								<td>Toggle the sidebar</td>
+							</tr>
+							<tr>
+								<td><kbd>?</kbd></td>
+								<td>Open / close this dialog</td>
+							</tr>
+							<tr>
+								<td><kbd>Esc</kbd></td>
+								<td>Close this dialog</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 			</div>
-			<table class="shortcuts-table">
-				<tbody>
-					<tr>
-						<td><kbd>t</kbd></td>
-						<td>Toggle light / dark theme</td>
-					</tr>
-					<tr>
-						<td><kbd>s</kbd></td>
-						<td>Toggle the sidebar</td>
-					</tr>
-					<tr>
-						<td><kbd>?</kbd></td>
-						<td>Open / close this dialog</td>
-					</tr>
-					<tr>
-						<td><kbd>Esc</kbd></td>
-						<td>Close this dialog</td>
-					</tr>
-				</tbody>
-			</table>
 		</div>
 	</div>
 }
@@ -70,7 +79,7 @@ templ Layout(title, commitHash string) {
 	<!DOCTYPE html>
 	<html
 		data-signals="{theme: localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')}"
-		data-attr:data-theme="$theme"
+		data-attr:data-bs-theme="$theme"
 		data-effect="localStorage.setItem('theme', $theme)"
 		data-on:keydown__window="hotkey(evt, 't') && ($theme = $theme === 'dark' ? 'light' : 'dark')"
 		data-syntax-theme="tokyo-night"
@@ -85,7 +94,7 @@ templ Layout(title, commitHash string) {
 			<script>
                     (function() {
                         const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-                        document.documentElement.setAttribute('data-theme', theme);
+                        document.documentElement.setAttribute('data-bs-theme', theme);
                     })();
                      // True when `key` was pressed bare: no modifiers &
                      // not while typing in a form field. Shared by all data-on:keydown hotkeys.
@@ -105,12 +114,12 @@ templ Layout(title, commitHash string) {
 					data-on:keydown__window="hotkey(evt, 's') && ($sidebarOpen = !$sidebarOpen)"
 					data-on:click__outside="window.matchMedia('(max-width: 768px)').matches && !evt.target.closest('#sidebar-toggle') && ($sidebarOpen = false)"
 				>
-					<nav id="sidebar-nav">
-						<a href={ templ.SafeURL(HomeUrl) }>/</a>
-						<a href={ templ.SafeURL(ProcessesUrl) }>/proc</a>
-						<a href={ templ.SafeURL(EtcUrl) }>/etc</a>
-						<a href={ templ.SafeURL(VarWwwUrl) }>/var/www</a>
-						<a href={ templ.SafeURL(QuadletsUrl) }>Quadlets</a>
+					<nav id="sidebar-nav" class="nav flex-column">
+						<a class="nav-link" href={ templ.SafeURL(HomeUrl) }>/</a>
+						<a class="nav-link" href={ templ.SafeURL(ProcessesUrl) }>/proc</a>
+						<a class="nav-link" href={ templ.SafeURL(EtcUrl) }>/etc</a>
+						<a class="nav-link" href={ templ.SafeURL(VarWwwUrl) }>/var/www</a>
+						<a class="nav-link" href={ templ.SafeURL(QuadletsUrl) }>Quadlets</a>
 					</nav>
 					<div id="sidebar-footer">{ commitHash }</div>
 				</aside>
@@ -119,33 +128,33 @@ templ Layout(title, commitHash string) {
 						id="masthead"
 						data-on:keydown__window="hotkey(evt, '?') && ($shortcutsOpen = !$shortcutsOpen)"
 					>
-						<div class="flex gap-4">
+						<div class="d-flex align-items-center gap-3">
 							<button
 								id="sidebar-toggle"
 								type="button"
-								class="cursor-pointer"
+								class="btn btn-outline-secondary btn-sm"
 								aria-label="Toggle sidebar"
 								data-on:click="$sidebarOpen = !$sidebarOpen"
 							>☰</button>
 							@BrandLogo(osPrettyName())
 						</div>
-						<div class="flex items-center gap-4">
-							<fieldset class="cs-buttongroup" role="radiogroup" aria-label="Color mode">
-								<label>
-									<input type="radio" value="light" data-bind:theme/>
+						<div class="d-flex align-items-center gap-3">
+							<div class="btn-group" role="group" aria-label="Color mode">
+								<input type="radio" class="btn-check" name="theme-mode" id="theme-light" value="light" autocomplete="off" data-bind:theme/>
+								<label class="btn btn-outline-primary" for="theme-light">
 									<iconify-icon icon="material-symbols-light:sunny-rounded"></iconify-icon>
 									Light
 								</label>
-								<label>
-									<input type="radio" value="dark" data-bind:theme/>
+								<input type="radio" class="btn-check" name="theme-mode" id="theme-dark" value="dark" autocomplete="off" data-bind:theme/>
+								<label class="btn btn-outline-primary" for="theme-dark">
 									<iconify-icon icon="material-symbols-light:moon-stars"></iconify-icon>
 									Dark
 								</label>
-							</fieldset>
+							</div>
 							<button
 								id="shortcuts-toggle"
 								type="button"
-								class="cursor-pointer"
+								class="btn btn-outline-secondary btn-sm"
 								aria-label="Keyboard shortcuts"
 								aria-haspopup="dialog"
 								data-on:click="$shortcutsOpen = true"

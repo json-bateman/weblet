@@ -29,83 +29,96 @@ templ Home(info ServerInfo) {
 
 templ ServerInfoCards(info ServerInfo) {
 	<section>
-		<div class="flex gap-2">
+		<div class="d-flex gap-2 align-items-center">
 			Running
 			<img src={ StaticPath("images/go-logo-blue.png") } alt="Goroutines" width="60" height="24"/>
 		</div>
-		<div class="flex gap-4">
+		<div class="d-flex gap-3 text-muted small mb-3">
 			<span>Version: { info.GoVersion[:8] }</span>
 			<span>Goroutines: { fmt.Sprint(info.Goroutines) }</span>
 		</div>
-		<br/>
-		<div class="dashboard-row">
-			<div class="dashboard-card">
-				<header>
-					<div class="flex gap-2 items-center">
-						<img class="svg" width="40px" height="40px" src={ StaticPath("icons/server.svg") } alt="Server time"/>
-						<h3>Server Information</h3>
+		<div class="row g-3">
+			<div class="col-12 col-lg-6">
+				<div class="card h-100">
+					<div class="card-header d-flex justify-content-between align-items-end">
+						<div class="d-flex gap-2 align-items-center">
+							<img class="svg" width="40px" height="40px" src={ StaticPath("icons/server.svg") } alt="Server time"/>
+							<h3 class="fs-5 mb-0">Server Information</h3>
+						</div>
+						<span>{ info.Now }</span>
 					</div>
-					<span>{ info.Now }</span>
-				</header>
-				<div class="host-info-grid">
-					<div class="flex gap-2">
-						@osLogo(info.OS)
-						Operating System
-					</div>
-					<div class="truncate">{ info.OS }</div>
-					<div class="flex gap-2">
-						<img src={ StaticPath("images/Linux.png") } alt="Linux" width="24" height="24"/>
-						Kernel
-					</div>
-					<div class="truncate">{ info.Kernel }</div>
-					<div class="flex gap-2">
-						<img src={ StaticPath("images/cpu.png") } alt="Architecture" width="24" height="24"/>
-						Architecture
-					</div>
-					<div class="truncate">{ info.Arch }</div>
-					<div class="flex gap-2">
-						<img class="svg" src={ StaticPath("icons/clock.svg") } alt="uptime" width="24" height="24"/>
-						Uptime
-					</div>
-					<div>{ info.Uptime }</div>
+					<ul class="list-group list-group-flush">
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							<span class="d-flex gap-2 align-items-center fw-medium">
+								@osLogo(info.OS)
+								Operating System
+							</span>
+							<span class="text-truncate">{ info.OS }</span>
+						</li>
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							<span class="d-flex gap-2 align-items-center fw-medium">
+								<img src={ StaticPath("images/Linux.png") } alt="Linux" width="24" height="24"/>
+								Kernel
+							</span>
+							<span class="text-truncate">{ info.Kernel }</span>
+						</li>
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							<span class="d-flex gap-2 align-items-center fw-medium">
+								<img src={ StaticPath("images/cpu.png") } alt="Architecture" width="24" height="24"/>
+								Architecture
+							</span>
+							<span class="text-truncate">{ info.Arch }</span>
+						</li>
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							<span class="d-flex gap-2 align-items-center fw-medium">
+								<img class="svg" src={ StaticPath("icons/clock.svg") } alt="uptime" width="24" height="24"/>
+								Uptime
+							</span>
+							<span>{ info.Uptime }</span>
+						</li>
+					</ul>
 				</div>
 			</div>
-			<div class="dashboard-card">
-				<header>
-					<div class="flex gap-2 items-center">
-						<img src={ StaticPath("icons/cpu.svg") } alt="Resources" width="40" height="40"/>
-						<h3>Resources</h3>
+			<div class="col-12 col-lg-6">
+				<div class="card h-100">
+					<div class="card-header d-flex justify-content-between align-items-end">
+						<div class="d-flex gap-2 align-items-center">
+							<img class="svg" src={ StaticPath("icons/cpu.svg") } alt="Resources" width="40" height="40"/>
+							<h3 class="fs-5 mb-0">Resources</h3>
+						</div>
 					</div>
-				</header>
-				<div class="flex flex-wrap gap-2 card-body mb-2">
-					<div class="progress-box">
-						@progressBar("CPU Used", int(info.CPUPercent), fmt.Sprintf("%.0f%%", info.CPUPercent))
-					</div>
-					<div class="progress-box">
-						@progressBar(
-							"Memory Used",
-							int(100-(100*info.MemInfo.MemFree/info.MemInfo.MemTotal)),
-							fmt.Sprintf("%.2f GiB of %.2f GiB", info.MemInfo.MemTotal-info.MemInfo.MemFree, info.MemInfo.MemTotal),
-						)
-					</div>
-					<div class="progress-box">
-						@progressBar(
-							"Disk Used",
-							int(100-(100*info.DiskInfo.Free/info.DiskInfo.Total)),
-							fmt.Sprintf("%.2f GiB of %.2f GiB", info.DiskInfo.Total-info.DiskInfo.Free, info.DiskInfo.Total),
-						)
-					</div>
-				</div>
-				if len(info.CoreUsage) > 0 {
-					<h4 class="color-muted card-body">Cores</h4>
-					<div class="flex flex-wrap gap-2 card-body">
-						for _, core := range info.CoreUsage {
-							<div class="progress-box compact">
-								@progressBar(core.Name, int(core.Percent), "")
+					<div class="card-body">
+						<div class="d-flex flex-wrap gap-2 mb-3">
+							<div class="stat-tile">
+								@progressBar("CPU Used", int(info.CPUPercent), fmt.Sprintf("%.0f%%", info.CPUPercent))
+							</div>
+							<div class="stat-tile">
+								@progressBar(
+									"Memory Used",
+									int(100-(100*info.MemInfo.MemFree/info.MemInfo.MemTotal)),
+									fmt.Sprintf("%.2f GiB of %.2f GiB", info.MemInfo.MemTotal-info.MemInfo.MemFree, info.MemInfo.MemTotal),
+								)
+							</div>
+							<div class="stat-tile">
+								@progressBar(
+									"Disk Used",
+									int(100-(100*info.DiskInfo.Free/info.DiskInfo.Total)),
+									fmt.Sprintf("%.2f GiB of %.2f GiB", info.DiskInfo.Total-info.DiskInfo.Free, info.DiskInfo.Total),
+								)
+							</div>
+						</div>
+						if len(info.CoreUsage) > 0 {
+							<h4 class="text-muted fs-6">Cores</h4>
+							<div class="d-flex flex-wrap gap-2">
+								for _, core := range info.CoreUsage {
+									<div class="stat-tile compact">
+										@progressBar(core.Name, int(core.Percent), "")
+									</div>
+								}
 							</div>
 						}
 					</div>
-				}
+				</div>
 			</div>
 		</div>
 	</section>

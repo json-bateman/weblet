@@ -1,15 +1,17 @@
 /* Default to dark theme, respects OS preference as fallback */
+/* Gruvbox palette (https://github.com/morhetz/gruvbox) */
 :root {
     color-scheme: dark;
     --ff-primary: "IBM Plex Mono", ui-monospace, monospace;
-    /* Dark theme values */
-    --text: #f4ecd0;
-    --background: #14110a;
-    --primary: #fad000;
-    --secondary: #ffdf3d;
-    --accent: #fad000;
-    --success: #4fa373;
-    --error: #e85a56;
+    /* Dark theme values (gruvbox dark) */
+    --text: #ebdbb2;
+    --background: #282828;
+    --primary: #fabd2f;
+    --primary-rgb: 250, 189, 47;
+    --secondary: #fe8019;
+    --accent: #fabd2f;
+    --success: #b8bb26;
+    --error: #fb4934;
 
     /* Card/panel background: sits slightly above --background. */
     --surface: oklch(from var(--background) calc(l + 0.06) c h);
@@ -17,30 +19,89 @@
     --svg-filter: none;
 }
 
-:root[data-theme="light"] {
+[data-bs-theme="light"] {
     color-scheme: light;
-    --text: #1c1810;
-    --background: #fefaed;
-    --primary: #9a6700;
-    --secondary: #7a5200;
-    --accent: #fad000;
-    --success: #2d8659;
-    --error: #d9332e;
+    --text: #3c3836;
+    --background: #fbf1c7;
+    --primary: #b57614;
+    --primary-rgb: 181, 118, 20;
+    --secondary: #af3a03;
+    --accent: #fabd2f;
+    --success: #79740e;
+    --error: #9d0006;
     --surface: oklch(from var(--background) calc(l - 0.03) c h);
 
     --svg-filter: none;
 }
 
-:root[data-theme="dark"] {
+[data-bs-theme="dark"] {
     color-scheme: dark;
-    --text: #f4ecd0;
-    --background: #14110a;
-    --primary: #fad000;
-    --secondary: #ffdf3d;
-    --accent: #fad000;
-    --success: #4fa373;
-    --error: #e85a56;
+    --text: #ebdbb2;
+    --background: #282828;
+    --primary: #fabd2f;
+    --primary-rgb: 250, 189, 47;
+    --secondary: #fe8019;
+    --accent: #fabd2f;
+    --success: #b8bb26;
+    --error: #fb4934;
     --surface: oklch(from var(--background) calc(l + 0.06) c h);
 
     --svg-filter: invert(1) brightness(1.2);
+}
+
+/* Re-point Bootstrap's own design tokens at our palette instead of its defaults */
+:root,
+[data-bs-theme] {
+    --bs-body-font-family: var(--ff-primary);
+    --bs-body-bg: var(--background);
+    --bs-body-color: var(--text);
+    --bs-emphasis-color: var(--text);
+    --bs-secondary-color: oklch(from var(--secondary) l c h / 0.75);
+    --bs-border-color: oklch(from var(--primary) l c h / 0.6);
+    --bs-border-color-translucent: oklch(from var(--primary) l c h / 0.3);
+    --bs-tertiary-bg: var(--surface);
+    --bs-secondary-bg: var(--surface);
+    --bs-link-color: var(--primary);
+    --bs-link-color-rgb: var(--primary-rgb);
+    --bs-link-hover-color: var(--secondary);
+    --bs-primary: var(--primary);
+    --bs-primary-rgb: var(--primary-rgb);
+    --bs-primary-text-emphasis: var(--primary);
+    --bs-primary-bg-subtle: var(--surface);
+    --bs-primary-border-subtle: var(--accent);
+    --bs-code-color: var(--secondary);
+    --bs-progress-height: 0.5rem;
+    --bs-progress-bg: oklch(from var(--secondary) l c h / 0.25);
+    --bs-progress-bar-bg: var(--primary);
+}
+
+/* Bootstrap has it's own colors for all their components, whatever you use
+   must be overridden directly, kinda annoying but c 'est la vie */
+.progress,
+.progress-stacked {
+    --bs-progress-bar-bg: var(--primary);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--primary);
+    --bs-btn-border-color: var(--primary);
+    --bs-btn-hover-color: var(--background);
+    --bs-btn-hover-bg: var(--primary);
+    --bs-btn-hover-border-color: var(--primary);
+    --bs-btn-focus-shadow-rgb: var(--primary-rgb);
+    --bs-btn-active-color: var(--background);
+    --bs-btn-active-bg: var(--primary);
+    --bs-btn-active-border-color: var(--primary);
+    --bs-btn-disabled-color: var(--primary);
+    --bs-btn-disabled-border-color: var(--primary);
+}
+
+/* Plain stacked rows, no divider lines between items. */
+.list-group {
+    --bs-list-group-border-width: 0;
+}
+
+/* Bootstrap's .progress track has no border by default. */
+.progress {
+    border: 1px solid var(--bs-border-color);
 }

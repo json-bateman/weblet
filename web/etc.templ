@@ -15,7 +15,7 @@ templ EtcPage(caddyConfig string, files []struct{ Name, Content string }) {
 
 templ CaddyConfig(caddyConfig string) {
 	<section>
-		<h4 class="color-muted">Caddy Configuration (/etc/caddy/Caddyfile)</h4>
+		<h5 class="text-muted">Caddy Configuration (/etc/caddy/Caddyfile)</h5>
 		<details data-ignore-morph class="tree-file">
 			<summary>
 				<div class="caddy-img">
@@ -29,14 +29,14 @@ templ CaddyConfig(caddyConfig string) {
 
 templ FileList(files []struct{ Name, Content string }) {
 	<section>
-		<h4 class="color-muted">Quadlet Unit Files (/etc/containers/systemd/)</h4>
+		<h5 class="text-muted">Quadlet Unit Files (/etc/containers/systemd/)</h5>
 		if len(files) == 0 {
-			<p class="color-muted">No files found</p>
+			<p class="text-muted">No files found</p>
 		} else {
-			<div class="config-list">
+			<div class="d-grid gap-3">
 				for _, container := range files {
 					<details data-ignore-morph class="tree-file">
-						<summary>📄 { container.Name }</summary>
+						<summary><img class="svg" src={ StaticPath("icons/file.svg") }/> { container.Name }</summary>
 						<pre><code class="language-toml">{ container.Content }</code></pre>
 					</details>
 				}
