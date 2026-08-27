@@ -30,71 +30,83 @@ templ Home(info ServerInfo) {
 templ ServerInfoCards(info ServerInfo) {
 	<section>
 		<div class="flex gap-2">
-			This Webapp running
+			Running
 			<img src={ StaticPath("images/go-logo-blue.png") } alt="Goroutines" width="60" height="24"/>
 		</div>
 		<div class="flex gap-4">
 			<span>Version: { info.GoVersion[:8] }</span>
 			<span>Goroutines: { fmt.Sprint(info.Goroutines) }</span>
 		</div>
-		<div class="server-info">
-			<header class="flex justify-between items-center">
-				<div class="flex gap-2 items-center">
-					<img class="svg" width="40px" height="40px" src={ StaticPath("icons/server.svg") } alt="Server time"/>
-					<h3>Live server info</h3>
-				</div>
-				<span>{ info.Now }</span>
-			</header>
-			<div class="flex gap-2">
-				@osLogo(info.OS)
-				Operating System
-			</div>
-			<div class="truncate">{ info.OS }</div>
-			<div class="flex gap-2">
-				<img src={ StaticPath("images/Linux.png") } alt="Linux" width="24" height="24"/>
-				Kernel
-			</div>
-			<div class="truncate">{ info.Kernel }</div>
-			<div class="flex gap-2">
-				<img src={ StaticPath("images/cpu.png") } alt="Architecture" width="24" height="24"/>
-				Architecture	
-			</div>
-			<div class="truncate">{ info.Arch }</div>
-			<div class="flex gap-2">
-				<img class="svg" src={ StaticPath("icons/clock.svg") } alt="uptime" width="24" height="24"/>
-				Uptime	
-			</div>
-			<div>{ info.Uptime }</div>
-		</div>
 		<br/>
-		<div class="flex gap-4">
-			<div class="progress-box">
-				@progressBar("CPU Used", int(info.CPUPercent), fmt.Sprintf("%.0f%%", info.CPUPercent))
+		<div class="dashboard-row">
+			<div class="dashboard-card">
+				<header>
+					<div class="flex gap-2 items-center">
+						<img class="svg" width="40px" height="40px" src={ StaticPath("icons/server.svg") } alt="Server time"/>
+						<h3>Server Information</h3>
+					</div>
+					<span>{ info.Now }</span>
+				</header>
+				<div class="host-info-grid">
+					<div class="flex gap-2">
+						@osLogo(info.OS)
+						Operating System
+					</div>
+					<div class="truncate">{ info.OS }</div>
+					<div class="flex gap-2">
+						<img src={ StaticPath("images/Linux.png") } alt="Linux" width="24" height="24"/>
+						Kernel
+					</div>
+					<div class="truncate">{ info.Kernel }</div>
+					<div class="flex gap-2">
+						<img src={ StaticPath("images/cpu.png") } alt="Architecture" width="24" height="24"/>
+						Architecture
+					</div>
+					<div class="truncate">{ info.Arch }</div>
+					<div class="flex gap-2">
+						<img class="svg" src={ StaticPath("icons/clock.svg") } alt="uptime" width="24" height="24"/>
+						Uptime
+					</div>
+					<div>{ info.Uptime }</div>
+				</div>
 			</div>
-			<div class="progress-box">
-				@progressBar(
-					"Memory Used",
-					int(100-(100*info.MemInfo.MemFree/info.MemInfo.MemTotal)),
-					fmt.Sprintf("%.2f GiB of %.2f GiB", info.MemInfo.MemTotal-info.MemInfo.MemFree, info.MemInfo.MemTotal),
-				)
-			</div>
-			<div class="progress-box">
-				@progressBar(
-					"Disk Used",
-					int(100-(100*info.DiskInfo.Free/info.DiskInfo.Total)),
-					fmt.Sprintf("%.2f GiB of %.2f GiB", info.DiskInfo.Total-info.DiskInfo.Free, info.DiskInfo.Total),
-				)
-			</div>
-		</div>
-		if len(info.CoreUsage) > 0 {
-			<h4 class="color-muted mb-4">Cores</h4>
-			<div class="flex flex-wrap gap-2">
-				for _, core := range info.CoreUsage {
-					<div class="progress-box compact">
-						@progressBar(core.Name, int(core.Percent), "")
+			<div class="dashboard-card">
+				<header>
+					<div class="flex gap-2 items-center">
+						<img src={ StaticPath("icons/cpu.svg") } alt="Resources" width="40" height="40"/>
+						<h3>Resources</h3>
+					</div>
+				</header>
+				<div class="flex flex-wrap gap-2 card-body mb-2">
+					<div class="progress-box">
+						@progressBar("CPU Used", int(info.CPUPercent), fmt.Sprintf("%.0f%%", info.CPUPercent))
+					</div>
+					<div class="progress-box">
+						@progressBar(
+							"Memory Used",
+							int(100-(100*info.MemInfo.MemFree/info.MemInfo.MemTotal)),
+							fmt.Sprintf("%.2f GiB of %.2f GiB", info.MemInfo.MemTotal-info.MemInfo.MemFree, info.MemInfo.MemTotal),
+						)
+					</div>
+					<div class="progress-box">
+						@progressBar(
+							"Disk Used",
+							int(100-(100*info.DiskInfo.Free/info.DiskInfo.Total)),
+							fmt.Sprintf("%.2f GiB of %.2f GiB", info.DiskInfo.Total-info.DiskInfo.Free, info.DiskInfo.Total),
+						)
+					</div>
+				</div>
+				if len(info.CoreUsage) > 0 {
+					<h4 class="color-muted card-body">Cores</h4>
+					<div class="flex flex-wrap gap-2 card-body">
+						for _, core := range info.CoreUsage {
+							<div class="progress-box compact">
+								@progressBar(core.Name, int(core.Percent), "")
+							</div>
+						}
 					</div>
 				}
 			</div>
-		}
+		</div>
 	</section>
 }

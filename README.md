@@ -58,10 +58,10 @@ Then open **http://localhost:44223**. Config is `WEBLET_`-prefixed (see
 
 ## Development on MacOS (Lima VM)
 
-Run inside a linux VM, I recommend lima. The repo's port 44223 needs forwarded to the host:
+Run inside a linux VM, I recommend lima.
 
 ```bash
-limactl shell centos10 sh -c 'cd /home/lima/centos10/webadelphos && go run ./cmd'
+limactl shell centos10 sh -c 'cd /home/lima/centos10/weblet && task'
 ```
 
 Then open **http://localhost:44223** on the Mac.

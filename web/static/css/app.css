@@ -94,43 +94,65 @@ img.svg {
     filter: var(--svg-filter);
 }
 
-.server-info {
+/* Dashboard: a row of equal-width cards that wrap to full width on narrow
+   screens, so related stats (host info, resources) group visually instead
+   of stacking as one long column. */
+.dashboard-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 1rem;
+}
+
+.dashboard-card {
     background: var(--surface);
     border: 1px solid var(--accent);
     border-radius: 4px;
     padding-bottom: 0.5rem;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 0.5rem 1rem;
-    align-items: start;
-    max-width: 400px;
+    flex: 1 1 360px;
 }
 
-.server-info header {
-    grid-column: 1 / -1;
+.dashboard-card header {
     display: flex;
+    min-height: 4rem;
     padding: 0.5rem;
     align-items: center;
+    justify-content: space-between;
     gap: 0.75rem;
     border-bottom: 1px solid var(--accent);
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
 }
 
-.server-info header h3 {
+.dashboard-card header h3 {
     margin: 0;
     font-size: 1.2rem;
     font-weight: 600;
     color: var(--text);
 }
 
-.server-info>div.flex {
+/* Host info: label icon + value, two columns. */
+.host-info-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 1rem;
+    align-items: start;
+    padding: 0 0.5rem;
+}
+
+.host-info-grid>div.flex {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0rem 0.5rem 0rem 0.5rem;
     font-weight: 600;
     color: oklch(from var(--secondary) l c h / 0.9);
     font-size: 0.95rem;
+}
+
+/* Horizontal breathing room for content inside a .dashboard-card that
+   isn't .host-info-grid (which sets its own padding). */
+.card-body {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
 }
 
 #sidebar-footer {
@@ -237,7 +259,6 @@ img.svg {
     flex: 1 1 0;
     width: 100%;
     max-width: 240px;
-    margin: 1rem 0rem 1rem 0rem;
 }
 
 /* Per-core CPU boxes: narrower and non-growing so many of them wrap in a row
