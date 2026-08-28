@@ -156,30 +156,30 @@ func readServiceStatus(service string) ServiceStatus {
 	}
 }
 
-// readWebTree returns the /var/www directory tree, with directories listed
-// before files and each level sorted alphabetically.
+// readWebTree searches each top-level entry under /var/www (the haystack)
+// for its nearest index.html (the needle), and returns the pruned path down
+// to it - directories with a single child each, ending in the index.html
+// file. Site directories with no index.html anywhere beneath them are
+// omitted.
 func readWebTree() []*FileNode {
-	return readDirTree("/var/www")
-}
+	const root = "/var/www"
 
-// readDirTree recursively reads dir into FileNodes
-func readDirTree(dir string) []*FileNode {
-	entries, err := os.ReadDir(dir)
+	entries, err := os.ReadDir(root)
 	if err != nil {
 		return nil
 	}
 
 	nodes := make([]*FileNode, 0, len(entries))
 	for _, e := range entries {
-		node := &FileNode{Name: e.Name(), IsDir: e.IsDir()}
-		full := filepath.Join(dir, e.Name())
 		if e.IsDir() {
-			node.Children = readDirTree(full)
+			if node := shortestIndexPath(filepath.Join(root, e.Name()), e.Name()); node != nil {
+				nodes = append(nodes, node)
+			}
+		} else if e.Name() == "index.html" {
+			nodes = append(nodes, &FileNode{Name: e.Name()})
 		}
-		nodes = append(nodes, node)
 	}
 
-	// Directories first, then alphabetical within each group.
 	sort.Slice(nodes, func(i, j int) bool {
 		if nodes[i].IsDir != nodes[j].IsDir {
 			return nodes[i].IsDir
@@ -188,4 +188,50 @@ func readDirTree(dir string) []*FileNode {
 	})
 
 	return nodes
+}
+
+// shortestIndexPath breadth-first searches dir for the shallowest
+// index.html beneath it and returns the chain of FileNodes from dir (named
+// name) down to that file. Returns nil if dir has no index.html anywhere
+// beneath it.
+func shortestIndexPath(dir, name string) *FileNode {
+	type queued struct {
+		path  string
+		chain []string
+	}
+
+	queue := []queued{{path: dir}}
+	for len(queue) > 0 {
+		cur := queue[0]
+		queue = queue[1:]
+
+		entries, err := os.ReadDir(cur.path)
+		if err != nil {
+			continue
+		}
+
+		var subdirs []string
+		for _, e := range entries {
+			if !e.IsDir() && e.Name() == "index.html" {
+				leaf := &FileNode{Name: "index.html"}
+				for _, name := range slices.Backward(cur.chain) {
+					leaf = &FileNode{Name: name, IsDir: true, Children: []*FileNode{leaf}}
+				}
+				return &FileNode{Name: name, IsDir: true, Children: []*FileNode{leaf}}
+			}
+			if e.IsDir() {
+				subdirs = append(subdirs, e.Name())
+			}
+		}
+
+		sort.Strings(subdirs)
+		for _, sub := range subdirs {
+			queue = append(queue, queued{
+				path:  filepath.Join(cur.path, sub),
+				chain: append(append([]string{}, cur.chain...), sub),
+			})
+		}
+	}
+
+	return nil
 }
