@@ -1,12 +1,13 @@
 # Weblet
 
-A tiny Cockpit-style system monitor for **web servers** using Quadlets specifically:
-a single Go binary that serves a live web view of the machine it runs on,
-configured to watch for unit files because I use podman with `.container`s.
+A tiny Linux system monitor for **Web Servers**.  
+This app is a single Go binary that serves a live web view of the machine it runs on.
 
-[chi]: https://github.com/go-chi/chi
-[Datastar]: https://data-star.dev
-[templ]: https://templ.guide
+Specifially, this app is for people that use:
+
+1. [Caddy](https://github.com/caddyserver/caddy) - reverse proxy / web server  
+2. [Quadlets](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html) - Podman's systemd integration
+3. Static sites via index.html under /var/www
 
 ## Installation
 
@@ -66,3 +67,8 @@ limactl shell centos10 sh -c 'cd /home/lima/centos10/weblet && task'
 
 Then open **http://localhost:44223** on the Mac.
 
+### The Stack
+
+[chi](https://github.com/go-chi/chi) - HTTP router  
+[Datastar](https://data-star.dev) - hypermedia/reactivity over SSE  
+[templ](https://templ.guide) - HTML templating

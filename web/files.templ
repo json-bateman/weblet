@@ -45,10 +45,7 @@ templ CaddyConfig(caddyConfig string) {
 
 templ FileList(files []struct{ Name, Content string }) {
 	<section>
-		<h5 class="text-muted">
-			Quadlet Unit Files:
-			<span class="text-info small">/etc/containers/systemd/</span>
-		</h5>
+		<h5 class="text-muted">Quadlet Unit Files:</h5>
 		if len(files) == 0 {
 			<p class="text-info">No files found</p>
 		} else {
@@ -70,6 +67,7 @@ templ VarWwwTree(nodes []*FileNode) {
 			Static Files:
 			<span class="text-info small">/var/www/</span>
 		</h5>
+		<span class="text-info small">NOTE: This searches only for files named index.html</span>
 		if len(nodes) == 0 {
 			<p class="text-info">No files found</p>
 		} else {

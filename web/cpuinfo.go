@@ -29,11 +29,7 @@ func cpuUsagePercent() float64 {
 	return usageDelta("cpu", readCPUSamples())
 }
 
-// cpuCoreUsagePercents returns per-core utilization since the previous call,
-// ordered cpu0, cpu1, .... Utilization is a delta between two /proc/stat
-// samples — a single read can't give a percentage, since the fields are
-// cumulative jiffie counts since boot — so the first call in the process's
-// lifetime returns 0 for every core, having nothing to diff against yet.
+// cpuCoreUsagePercents returns per-core utilization since the previous call.
 func cpuCoreUsagePercents() []CoreUsage {
 	samples := readCPUSamples()
 

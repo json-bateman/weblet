@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -24,28 +25,64 @@ func readCaddyfile() string {
 	return string(data)
 }
 
-// readUnitFiles reads all .container files from /etc/containers/systemd/ and returns them sorted alphabetically
-func readUnitFiles() []struct{ Name, Content string } {
-	var containers []struct{ Name, Content string }
-	dir := "/etc/containers/systemd"
+// quadletSourceExtensions are the file extensions Quadlet's systemd
+// generator recognizes as unit source files.
+var quadletSourceExtensions = []string{".container", ".volume", ".network", ".pod", ".kube", ".build", ".image"}
 
-	entries, err := os.ReadDir(dir)
+// isQuadletSource reports whether path looks like a Quadlet source file, based on its extension.
+func isQuadletSource(path string) bool {
+	return slices.Contains(quadletSourceExtensions, filepath.Ext(path))
+}
+
+// sourcePath asks systemd for the file a generated unit came from, via the
+// SourcePath property. Empty if the unit isn't generated or doesn't exist.
+func sourcePath(unit string) string {
+	out, err := exec.Command("systemctl", "show", unit, "--property=SourcePath").Output()
 	if err != nil {
-		return containers
+		return ""
+	}
+	_, val, ok := strings.Cut(strings.TrimSpace(string(out)), "=")
+	if !ok {
+		return ""
+	}
+	return val
+}
+
+// quadletUnits returns every systemd service that was generated from a
+// Quadlet source file, mapped to that source file's path.
+func quadletUnits() map[string]string {
+	out, err := exec.Command("systemctl", "list-unit-files", "--type=service", "--no-legend", "--no-pager").Output()
+	if err != nil {
+		return nil
 	}
 
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			filePath := dir + "/" + entry.Name()
-			data, err := os.ReadFile(filePath)
-			if err != nil {
-				continue
-			}
-			containers = append(containers, struct{ Name, Content string }{
-				Name:    entry.Name(),
-				Content: string(data),
-			})
+	units := make(map[string]string)
+	for line := range strings.SplitSeq(string(out), "\n") {
+		fields := strings.Fields(line)
+		if len(fields) < 2 || fields[1] != "generated" {
+			continue
 		}
+		if source := sourcePath(fields[0]); isQuadletSource(source) {
+			units[fields[0]] = source
+		}
+	}
+	return units
+}
+
+// readUnitFiles reads every Quadlet unit's source file, as found via
+// quadletUnits, and returns them sorted alphabetically by filename.
+func readUnitFiles() []struct{ Name, Content string } {
+	var containers []struct{ Name, Content string }
+
+	for _, source := range quadletUnits() {
+		data, err := os.ReadFile(source)
+		if err != nil {
+			continue
+		}
+		containers = append(containers, struct{ Name, Content string }{
+			Name:    filepath.Base(source),
+			Content: string(data),
+		})
 	}
 
 	sort.Slice(containers, func(i, j int) bool {
@@ -56,15 +93,10 @@ func readUnitFiles() []struct{ Name, Content string } {
 }
 
 // runningQuadletServices returns the systemd service names for Quadlet
-// container units (/etc/containers/systemd/*.container) that are currently
-// running, by cross-referencing configured units against systemctl's list
-// of running services.
+// units that are currently running, by cross-referencing quadletUnits
+// against systemctl's list of running services.
 func runningQuadletServices() []string {
-	configured := make(map[string]bool)
-	for _, c := range readUnitFiles() {
-		name := strings.TrimSuffix(c.Name, filepath.Ext(c.Name))
-		configured[name+".service"] = true
-	}
+	configured := quadletUnits()
 	if len(configured) == 0 {
 		return nil
 	}
@@ -80,7 +112,7 @@ func runningQuadletServices() []string {
 		if len(fields) == 0 {
 			continue
 		}
-		if configured[fields[0]] {
+		if _, ok := configured[fields[0]]; ok {
 			running = append(running, fields[0])
 		}
 	}

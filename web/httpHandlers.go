@@ -8,12 +8,6 @@ import (
 	"github.com/starfederation/datastar-go/datastar"
 )
 
-var UpdateTick = 1
-
-type TickRequest struct {
-	SelectValue string `json:"select_value"`
-}
-
 func homePage() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := Home(collectServerInfo()).Render(r.Context(), w); err != nil {
@@ -26,7 +20,7 @@ func homePageSse() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sse := datastar.NewSSE(w, r, datastar.WithCompression(datastar.WithBrotli()))
 
-		ticker := time.NewTicker(time.Duration(UpdateTick) * time.Second)
+		ticker := time.NewTicker(time.Second)
 		defer ticker.Stop()
 
 		for {
@@ -57,7 +51,7 @@ func processesPageSse() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sse := datastar.NewSSE(w, r, datastar.WithCompression(datastar.WithBrotli()))
 
-		ticker := time.NewTicker(time.Duration(UpdateTick) * (2 * time.Second))
+		ticker := time.NewTicker(2 * time.Second)
 		defer ticker.Stop()
 
 		for {
@@ -95,15 +89,12 @@ func quadletsPage() http.HandlerFunc {
 // logLines caps how many journal lines are fetched per tail.
 const logLines = 50
 
-// quadletLogsSSE streams periodic journalctl tails for every currently
-// running Quadlet service over a single connection, patching each service's
-// pane in turn each tick. Services come from runningQuadletServices() rather
-// than client input, so nothing client-supplied reaches exec.Command here.
+// quadletLogsSSE streams periodic journalctl tails for every currently running Quadlet service
 func quadletLogsSSE() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sse := datastar.NewSSE(w, r, datastar.WithCompression(datastar.WithBrotli()))
 
-		ticker := time.NewTicker(time.Duration(UpdateTick) * (2 * time.Second))
+		ticker := time.NewTicker(3 * time.Second)
 		defer ticker.Stop()
 
 		for {

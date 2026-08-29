@@ -9,7 +9,7 @@ templ QuadletsPage(runningServices []string) {
 			if len(runningServices) == 0 {
 				<p class="text-info">No Quadlet services currently running</p>
 			} else {
-				<h4 class="fs-6 text-muted">Service Logs</h4>
+				<h4 class="fs-6 text-info">Service Logs</h4>
 				<ul class="nav nav-tabs">
 					for _, name := range runningServices {
 						<li class="nav-item">
@@ -41,7 +41,7 @@ templ QuadletsPage(runningServices []string) {
 // matched by id so Datastar can morph it in place without disturbing tab state.
 templ ServiceLogPane(service string, status ServiceStatus, logs string) {
 	<div id={ "log-" + service }>
-		<div class="d-flex flex-wrap gap-3 align-items-center small text-muted mb-2">
+		<div class="d-flex flex-wrap gap-3 align-items-center small text-info mb-2">
 			<span class={ "badge", badgeClass(status.ActiveState) }>{ status.ActiveState }</span>
 			<span>{ status.SubState }</span>
 			if status.PID != "" && status.PID != "0" {
