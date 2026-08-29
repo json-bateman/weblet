@@ -95,18 +95,12 @@ func quadletsPage() http.HandlerFunc {
 // logLines caps how many journal lines are fetched per tail.
 const logLines = 50
 
-// quadletLogsSSE streams a periodic journalctl tail for one Quadlet service,
-// picked by the ?service= query param. The name is validated against the
-// currently running services rather than trusted, since it's client input
-// and gets passed straight to exec.Command.
+// quadletLogsSSE streams periodic journalctl tails for every currently
+// running Quadlet service over a single connection, patching each service's
+// pane in turn each tick. Services come from runningQuadletServices() rather
+// than client input, so nothing client-supplied reaches exec.Command here.
 func quadletLogsSSE() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		service := r.URL.Query().Get("service")
-		if !isRunningQuadletService(service) {
-			http.Error(w, "unknown or not-running service", http.StatusBadRequest)
-			return
-		}
-
 		sse := datastar.NewSSE(w, r, datastar.WithCompression(datastar.WithBrotli()))
 
 		ticker := time.NewTicker(time.Duration(UpdateTick) * (2 * time.Second))
@@ -117,10 +111,12 @@ func quadletLogsSSE() http.HandlerFunc {
 			case <-r.Context().Done():
 				return
 			case <-ticker.C:
-				status := readServiceStatus(service)
-				logs := readServiceLogs(service, logLines)
-				if err := sse.PatchElementTempl(ServiceLogPane(service, status, logs)); err != nil {
-					return
+				for _, service := range runningQuadletServices() {
+					status := readServiceStatus(service)
+					logs := readServiceLogs(service, logLines)
+					if err := sse.PatchElementTempl(ServiceLogPane(service, status, logs)); err != nil {
+						return
+					}
 				}
 			}
 		}

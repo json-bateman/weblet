@@ -1,16 +1,13 @@
 package web
 
-import (
-	"fmt"
-	"net/url"
-)
+import "fmt"
 
 templ QuadletsPage(runningServices []string) {
 	@Layout("Quadlets", CommitHash) {
 		<main data-signals={ fmt.Sprintf(`{activeService: "%s"}`, firstOrEmpty(runningServices)) }>
 			<h3 class="mb-4">Quadlet Information</h3>
 			if len(runningServices) == 0 {
-				<p class="text-muted">No Quadlet services currently running</p>
+				<p class="text-info">No Quadlet services currently running</p>
 			} else {
 				<h4 class="fs-6 text-muted">Service Logs</h4>
 				<ul class="nav nav-tabs">
@@ -25,12 +22,11 @@ templ QuadletsPage(runningServices []string) {
 						</li>
 					}
 				</ul>
-				<div class="tab-content border border-top-0 p-3 mb-3">
+				<div class="tab-content border border-top-0 p-3 mb-3" data-init={ fmt.Sprintf("@get('%s/logs/sse')", QuadletsUrl) }>
 					for _, name := range runningServices {
 						<div
 							class="tab-pane"
 							data-class={ fmt.Sprintf(`{active: $activeService === "%s", show: $activeService === "%s"}`, name, name) }
-							data-init={ fmt.Sprintf("@get('%s/logs/sse?service=%s')", QuadletsUrl, url.QueryEscape(name)) }
 						>
 							@ServiceLogPane(name, readServiceStatus(name), "Loading logs...")
 						</div>

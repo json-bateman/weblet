@@ -25,7 +25,7 @@ templ progressBar(label string, percent int, detail string) {
 }
 
 templ ProcessesPage(procs *ProcessInfo) {
-	@Layout("/procs", CommitHash) {
+	@Layout("Processes", CommitHash) {
 		<main data-init={ fmt.Sprintf("@get('%s/sse')", ProcessesUrl) }>
 			<h3>Processes</h3>
 			@ProcessesTable(procs)
@@ -36,7 +36,7 @@ templ ProcessesPage(procs *ProcessInfo) {
 // ProcessTable is patched over SSE with a fresh /proc snapshot, sorted by memory.
 templ ProcessesTable(procs *ProcessInfo) {
 	<section>
-		<h4 class="text-muted">Top { fmt.Sprint(len(procs.Processes)) } By Memory</h4>
+		<h5 class="text-info">Top { fmt.Sprint(len(procs.Processes)) } By Memory</h5>
 		<div class="stat-tile mb-3">
 			@progressBar(
 				"Memory Used",

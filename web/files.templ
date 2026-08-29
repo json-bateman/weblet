@@ -9,7 +9,7 @@ type FileNode struct {
 }
 
 templ FilesPage(caddyConfig string, units []struct{ Name, Content string }, webNodes []*FileNode) {
-	@Layout("/files", CommitHash) {
+	@Layout("Files", CommitHash) {
 		<main>
 			<h3 class="mb-4">Files</h3>
 			<div class="row g-3">
@@ -28,7 +28,10 @@ templ FilesPage(caddyConfig string, units []struct{ Name, Content string }, webN
 
 templ CaddyConfig(caddyConfig string) {
 	<section>
-		<h5 class="text-muted">Caddy Configuration: /etc/caddy/Caddyfile</h5>
+		<h5 class="text-muted">
+			Caddy Configuration:
+			<span class="text-info small">/etc/caddy/Caddyfile</span>
+		</h5>
 		<details data-ignore-morph class="tree-file">
 			<summary>
 				<div class="caddy-img">
@@ -42,9 +45,12 @@ templ CaddyConfig(caddyConfig string) {
 
 templ FileList(files []struct{ Name, Content string }) {
 	<section>
-		<h5 class="text-muted">Quadlet Unit Files: /etc/containers/systemd/</h5>
+		<h5 class="text-muted">
+			Quadlet Unit Files:
+			<span class="text-info small">/etc/containers/systemd/</span>
+		</h5>
 		if len(files) == 0 {
-			<p class="text-muted">No files found</p>
+			<p class="text-info">No files found</p>
 		} else {
 			<div class="d-grid gap-3">
 				for _, container := range files {
@@ -60,9 +66,12 @@ templ FileList(files []struct{ Name, Content string }) {
 
 templ VarWwwTree(nodes []*FileNode) {
 	<section>
-		<h5 class="text-muted">Static Files: /var/www</h5>
+		<h5 class="text-muted">
+			Static Files:
+			<span class="text-info small">/var/www/</span>
+		</h5>
 		if len(nodes) == 0 {
-			<p class="text-muted">No files found under /var/www</p>
+			<p class="text-info">No files found</p>
 		} else {
 			<div class="file-tree">
 				@FileTree(nodes)

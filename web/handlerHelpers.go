@@ -17,7 +17,7 @@ func readCaddyfile() string {
 	data, err := os.ReadFile("/etc/caddy/Caddyfile")
 	if err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "no such file or directory") {
-			return "Caddyfile not present in etc/caddy/Caddyfile\nInstall Caddy and Add Caddyfile."
+			return "Caddyfile not present: etc/caddy/Caddyfile\nInstall Caddy and Add Caddyfile."
 		}
 		fmt.Println(err.Error())
 		return "Error reading Caddyfile: " + err.Error()
@@ -91,14 +91,6 @@ func runningQuadletServices() []string {
 	return running
 }
 
-// isRunningQuadletService reports whether name is one of the currently
-// running Quadlet services. Used to validate a client-supplied service name
-// before it's ever passed to exec.Command, rather than trusting request
-// input to pick which unit journalctl reads.
-func isRunningQuadletService(name string) bool {
-	return slices.Contains(runningQuadletServices(), name)
-}
-
 // readServiceLogs returns the last n lines of a systemd unit's journal.
 func readServiceLogs(service string, n int) string {
 	out, err := exec.Command("journalctl", "-u", service, "-n", strconv.Itoa(n), "--no-pager", "--output=short-iso").CombinedOutput()
@@ -123,8 +115,7 @@ const systemdTimestampLayout = "Mon 2006-01-02 15:04:05 MST"
 
 // readServiceStatus reads a systemd unit's current status via `systemctl
 // show`. Properties come back as KEY=VALUE lines - not necessarily in the
-// order requested, so they're parsed into a map by name rather than by
-// position.
+// order requested, so they're parsed into a map by name
 func readServiceStatus(service string) ServiceStatus {
 	out, err := exec.Command(
 		"systemctl", "show", service,

@@ -89,7 +89,7 @@ templ Layout(title, commitHash string) {
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>{ title }</title>
-			<link rel="icon" type="image/png" href={ StaticPath("images/favicon.png") }/>
+			<link rel="icon" type="image/png" href={ StaticPath("icons/podman.svg") }/>
 			<!-- Need this IIFE to  run before CSS loads, prevents theme flash since D* is deferred with type="module" -->
 			<script>
                     (function() {
@@ -105,7 +105,9 @@ templ Layout(title, commitHash string) {
                </script>
 			<link href={ StaticPath("css/main.css") } rel="stylesheet"/>
 		</head>
+		<!--
 		<datastar-inspector></datastar-inspector>
+        -->
 		<body data-signals="{sidebarOpen: false, shortcutsOpen: false}">
 			<div id="app-shell">
 				<aside

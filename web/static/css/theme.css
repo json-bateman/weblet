@@ -12,6 +12,8 @@
     --accent: #fabd2f;
     --success: #b8bb26;
     --error: #fb4934;
+    --gray: #928374;
+    --gray-rgb: 146, 131, 116;
 
     /* Card/panel background: sits slightly above --background. */
     --surface: oklch(from var(--background) calc(l + 0.06) c h);
@@ -29,6 +31,8 @@
     --accent: #fabd2f;
     --success: #79740e;
     --error: #9d0006;
+    --gray: #928374;
+    --gray-rgb: 146, 131, 116;
     --surface: oklch(from var(--background) calc(l - 0.03) c h);
 
     --svg-filter: none;
@@ -44,6 +48,8 @@
     --accent: #fabd2f;
     --success: #b8bb26;
     --error: #fb4934;
+    --gray: #928374;
+    --gray-rgb: 146, 131, 116;
     --surface: oklch(from var(--background) calc(l + 0.06) c h);
 
     --svg-filter: invert(1) brightness(1.2);
@@ -73,6 +79,12 @@
     --bs-progress-height: 0.5rem;
     --bs-progress-bg: oklch(from var(--secondary) l c h / 0.25);
     --bs-progress-bar-bg: var(--primary);
+    --bs-info: var(--gray);
+    --bs-info-rgb: var(--gray-rgb);
+}
+
+.text-gray {
+    color: var(--gray);
 }
 
 /* Bootstrap has it's own colors for all their components, whatever you use

@@ -19,7 +19,7 @@ templ osLogo(osName string) {
 }
 
 templ Home(info ServerInfo) {
-	@Layout("/home", CommitHash) {
+	@Layout("Weblet", CommitHash) {
 		<main data-init={ fmt.Sprintf("@get('/sse')") }>
 			<h1>{ info.Name }</h1>
 			@ServerInfoCards(info)
@@ -30,10 +30,10 @@ templ Home(info ServerInfo) {
 templ ServerInfoCards(info ServerInfo) {
 	<section>
 		<div class="d-flex gap-2 align-items-center">
-			Running
+			Weblet Running
 			<img src={ StaticPath("images/go-logo-blue.png") } alt="Goroutines" width="60" height="24"/>
 		</div>
-		<div class="d-flex gap-3 text-muted small mb-3">
+		<div class="d-flex gap-3 text-info small mb-3">
 			<span>Version: { info.GoVersion[:8] }</span>
 			<span>Goroutines: { fmt.Sprint(info.Goroutines) }</span>
 		</div>
