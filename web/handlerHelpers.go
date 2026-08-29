@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -25,7 +24,7 @@ func readCaddyfile() string {
 	return string(data)
 }
 
-// readUnitFiles reads all .container files from /etc/containers/systemd/ and returns them sorted
+// readUnitFiles reads all .container files from /etc/containers/systemd/ and returns them sorted alphabetically
 func readUnitFiles() []struct{ Name, Content string } {
 	var containers []struct{ Name, Content string }
 	dir := "/etc/containers/systemd"
@@ -49,7 +48,6 @@ func readUnitFiles() []struct{ Name, Content string } {
 		}
 	}
 
-	// Sort alphabetically by name
 	sort.Slice(containers, func(i, j int) bool {
 		return containers[i].Name < containers[j].Name
 	})
@@ -147,96 +145,40 @@ func readServiceStatus(service string) ServiceStatus {
 	}
 }
 
-// readWebTree searches each top-level entry under /var/www (the haystack)
-// for its nearest index.html (the needle), and returns the pruned path down
-// to it - directories with a single child each, ending in the index.html
-// file. Site directories with no index.html anywhere beneath them are
-// omitted.
+// readWebTree searches /var/www (the haystack) for index.html files (the
+// needle) and returns the pruned path down to each one found.
 func readWebTree() []*FileNode {
-	const root = "/var/www"
+	return findIndexNodes("/var/www")
+}
 
-	entries, err := os.ReadDir(root)
+// findIndexNodes returns the FileNode(s) representing the nearest
+// index.html(s) beneath dir. If dir directly contains an index.html, that's
+// the answer for this branch and it returns immediately.
+func findIndexNodes(dir string) []*FileNode {
+	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return nil
 	}
 
-	nodes := make([]*FileNode, 0, len(entries))
+	for _, e := range entries {
+		if !e.IsDir() && e.Name() == "index.html" {
+			return []*FileNode{{Name: "index.html"}}
+		}
+	}
+
+	var subdirs []string
 	for _, e := range entries {
 		if e.IsDir() {
-			if matches := shortestIndexPaths(filepath.Join(root, e.Name())); matches != nil {
-				nodes = append(nodes, &FileNode{Name: e.Name(), IsDir: true, Children: matches})
-			}
-		} else if e.Name() == "index.html" {
-			nodes = append(nodes, &FileNode{Name: e.Name()})
+			subdirs = append(subdirs, e.Name())
 		}
 	}
+	sort.Strings(subdirs)
 
-	sort.Slice(nodes, func(i, j int) bool {
-		if nodes[i].IsDir != nodes[j].IsDir {
-			return nodes[i].IsDir
+	var nodes []*FileNode
+	for _, sub := range subdirs {
+		if children := findIndexNodes(filepath.Join(dir, sub)); children != nil {
+			nodes = append(nodes, &FileNode{Name: sub, IsDir: true, Children: children})
 		}
-		return nodes[i].Name < nodes[j].Name
-	})
-
+	}
 	return nodes
-}
-
-// shortestIndexPaths breadth-first searches dir level by level and returns
-// the chain of FileNodes down to every index.html found at the shallowest
-// depth that has one. Ties at the same depth (index.html files under
-// different sibling subdirectories) are all included rather than just the
-// first one encountered. Returns nil if dir has no index.html anywhere
-// beneath it.
-func shortestIndexPaths(dir string) []*FileNode {
-	type queued struct {
-		path  string
-		chain []string
-	}
-
-	queue := []queued{{path: dir}}
-	for len(queue) > 0 {
-		var matches []*FileNode
-		var next []queued
-
-		for _, cur := range queue {
-			entries, err := os.ReadDir(cur.path)
-			if err != nil {
-				continue
-			}
-
-			hasIndex := false
-			var subdirs []string
-			for _, e := range entries {
-				if !e.IsDir() && e.Name() == "index.html" {
-					hasIndex = true
-				} else if e.IsDir() {
-					subdirs = append(subdirs, e.Name())
-				}
-			}
-
-			if hasIndex {
-				leaf := &FileNode{Name: "index.html"}
-				for _, name := range slices.Backward(cur.chain) {
-					leaf = &FileNode{Name: name, IsDir: true, Children: []*FileNode{leaf}}
-				}
-				matches = append(matches, leaf)
-				continue
-			}
-
-			sort.Strings(subdirs)
-			for _, sub := range subdirs {
-				next = append(next, queued{
-					path:  filepath.Join(cur.path, sub),
-					chain: append(append([]string{}, cur.chain...), sub),
-				})
-			}
-		}
-
-		if len(matches) > 0 {
-			return matches
-		}
-		queue = next
-	}
-
-	return nil
 }
