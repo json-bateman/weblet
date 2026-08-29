@@ -163,8 +163,8 @@ func readWebTree() []*FileNode {
 	nodes := make([]*FileNode, 0, len(entries))
 	for _, e := range entries {
 		if e.IsDir() {
-			if node := shortestIndexPath(filepath.Join(root, e.Name()), e.Name()); node != nil {
-				nodes = append(nodes, node)
+			if matches := shortestIndexPaths(filepath.Join(root, e.Name())); matches != nil {
+				nodes = append(nodes, &FileNode{Name: e.Name(), IsDir: true, Children: matches})
 			}
 		} else if e.Name() == "index.html" {
 			nodes = append(nodes, &FileNode{Name: e.Name()})
@@ -181,11 +181,13 @@ func readWebTree() []*FileNode {
 	return nodes
 }
 
-// shortestIndexPath breadth-first searches dir for the shallowest
-// index.html beneath it and returns the chain of FileNodes from dir (named
-// name) down to that file. Returns nil if dir has no index.html anywhere
+// shortestIndexPaths breadth-first searches dir level by level and returns
+// the chain of FileNodes down to every index.html found at the shallowest
+// depth that has one. Ties at the same depth (index.html files under
+// different sibling subdirectories) are all included rather than just the
+// first one encountered. Returns nil if dir has no index.html anywhere
 // beneath it.
-func shortestIndexPath(dir, name string) *FileNode {
+func shortestIndexPaths(dir string) []*FileNode {
 	type queued struct {
 		path  string
 		chain []string
@@ -193,35 +195,47 @@ func shortestIndexPath(dir, name string) *FileNode {
 
 	queue := []queued{{path: dir}}
 	for len(queue) > 0 {
-		cur := queue[0]
-		queue = queue[1:]
+		var matches []*FileNode
+		var next []queued
 
-		entries, err := os.ReadDir(cur.path)
-		if err != nil {
-			continue
-		}
+		for _, cur := range queue {
+			entries, err := os.ReadDir(cur.path)
+			if err != nil {
+				continue
+			}
 
-		var subdirs []string
-		for _, e := range entries {
-			if !e.IsDir() && e.Name() == "index.html" {
+			hasIndex := false
+			var subdirs []string
+			for _, e := range entries {
+				if !e.IsDir() && e.Name() == "index.html" {
+					hasIndex = true
+				} else if e.IsDir() {
+					subdirs = append(subdirs, e.Name())
+				}
+			}
+
+			if hasIndex {
 				leaf := &FileNode{Name: "index.html"}
 				for _, name := range slices.Backward(cur.chain) {
 					leaf = &FileNode{Name: name, IsDir: true, Children: []*FileNode{leaf}}
 				}
-				return &FileNode{Name: name, IsDir: true, Children: []*FileNode{leaf}}
+				matches = append(matches, leaf)
+				continue
 			}
-			if e.IsDir() {
-				subdirs = append(subdirs, e.Name())
+
+			sort.Strings(subdirs)
+			for _, sub := range subdirs {
+				next = append(next, queued{
+					path:  filepath.Join(cur.path, sub),
+					chain: append(append([]string{}, cur.chain...), sub),
+				})
 			}
 		}
 
-		sort.Strings(subdirs)
-		for _, sub := range subdirs {
-			queue = append(queue, queued{
-				path:  filepath.Join(cur.path, sub),
-				chain: append(append([]string{}, cur.chain...), sub),
-			})
+		if len(matches) > 0 {
+			return matches
 		}
+		queue = next
 	}
 
 	return nil
