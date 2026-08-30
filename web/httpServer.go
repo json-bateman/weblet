@@ -23,7 +23,7 @@ var StaticFS embed.FS
 // be cached forever; when a file changes its hash changes and busts the cache.
 var StaticSys = hashfs.NewFS(StaticFS)
 
-var CommitHash = "dev"
+var Version = "dev"
 
 const (
 	HomeUrl      = "/"
@@ -56,8 +56,11 @@ func cacheUnhashedStatic(next http.Handler) http.Handler {
 	})
 }
 
-func getCommitHash() string {
-	cmd := exec.Command("git", "rev-parse", "--short", "HEAD")
+// getVersion returns the nearest git tag (e.g. "v1.2.3"), or "v1.2.3-4-gabcdef"
+// if HEAD is ahead of the tag, or just the short commit hash if the repo has
+// no tags at all.
+func getVersion() string {
+	cmd := exec.Command("git", "describe", "--tags", "--always")
 	output, err := cmd.Output()
 	if err != nil {
 		return "unknown"
@@ -97,8 +100,8 @@ func setupRoutes() chi.Router {
 // RunBlocking starts the HTTP server and blocks until setupCtx is cancelled, at
 // which point it shuts down gracefully.
 func RunBlocking(setupCtx context.Context) error {
-	if CommitHash == "dev" {
-		CommitHash = getCommitHash()
+	if Version == "dev" {
+		Version = getVersion()
 	}
 	router := setupRoutes()
 

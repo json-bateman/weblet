@@ -9,7 +9,7 @@ type FileNode struct {
 }
 
 templ FilesPage(caddyConfig string, units []struct{ Name, Content string }, webNodes []*FileNode) {
-	@Layout("Files", CommitHash) {
+	@Layout("Files", Version) {
 		<main>
 			<h3 class="mb-4">Files</h3>
 			<div class="row g-3">

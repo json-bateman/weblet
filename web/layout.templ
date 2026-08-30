@@ -75,7 +75,7 @@ templ ShortcutsDialog() {
 	</div>
 }
 
-templ Layout(title, commitHash string) {
+templ Layout(title, version string) {
 	<!DOCTYPE html>
 	<html
 		data-signals="{theme: localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')}"
@@ -122,7 +122,7 @@ templ Layout(title, commitHash string) {
 						<a class="nav-link" href={ templ.SafeURL(FilesUrl) }>Files</a>
 						<a class="nav-link" href={ templ.SafeURL(QuadletsUrl) }>Quadlets</a>
 					</nav>
-					<div id="sidebar-footer">{ commitHash }</div>
+					<div id="sidebar-footer">{ version }</div>
 				</aside>
 				<div id="app-shell-main">
 					<header

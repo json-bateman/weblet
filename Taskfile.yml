@@ -17,7 +17,7 @@ tasks:
     deps: [templ:build]
     cmds:
       - mkdir -p ./release
-      - go build -ldflags "-X github.com/json-bateman/weblet/web.CommitHash=$(git rev-parse --short HEAD)" -o ./release/web ./cmd
+      - go build -ldflags "-X github.com/json-bateman/weblet/web.Version=$(git describe --tags --always)" -o ./release/web ./cmd
       - echo "Release built in ./release/"
 
   clean:

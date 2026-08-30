@@ -19,7 +19,7 @@ templ osLogo(osName string) {
 }
 
 templ Home(info ServerInfo) {
-	@Layout("Weblet", CommitHash) {
+	@Layout("Weblet", Version) {
 		<main data-init={ fmt.Sprintf("@get('/sse')") }>
 			<h1>{ info.Name }</h1>
 			@ServerInfoCards(info)

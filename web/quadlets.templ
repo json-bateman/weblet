@@ -3,7 +3,7 @@ package web
 import "fmt"
 
 templ QuadletsPage(runningServices []string) {
-	@Layout("Quadlets", CommitHash) {
+	@Layout("Quadlets", Version) {
 		<main data-signals={ fmt.Sprintf(`{activeService: "%s"}`, firstOrEmpty(runningServices)) }>
 			<h3 class="mb-4">Quadlet Information</h3>
 			if len(runningServices) == 0 {

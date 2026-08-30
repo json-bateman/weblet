@@ -25,7 +25,7 @@ templ progressBar(label string, percent int, detail string) {
 }
 
 templ ProcessesPage(procs *ProcessInfo) {
-	@Layout("Processes", CommitHash) {
+	@Layout("Processes", Version) {
 		<main data-init={ fmt.Sprintf("@get('%s/sse')", ProcessesUrl) }>
 			<h3>Processes</h3>
 			@ProcessesTable(procs)
