@@ -39,7 +39,7 @@ chmod +x weblet
 echo "Starting weblet in the background (logs: weblet.log)..."
 nohup ./weblet > weblet.log 2>&1 &
 
-echo "weblet is running (pid $!). Open http://localhost:44223"
+echo "weblet is running (pid $!). Open http://localhost:41234"
 if [ "$(id -u)" -ne 0 ]; then
   echo "Note: running as $(id -un). For full visibility into root-owned processes/units, run instead: sudo ./weblet"
 fi

@@ -11,7 +11,7 @@ import (
 )
 
 type Config struct {
-	Port int `envconfig:"PORT" default:"44223"`
+	Port int `envconfig:"PORT" default:"41234"`
 }
 
 var Env Config
